@@ -33,6 +33,7 @@ export default function Participants({ eventId }: { eventId: string }) {
 
   useEffect(() => {
     load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (loading && items.length === 0) {
@@ -111,7 +112,7 @@ export default function Participants({ eventId }: { eventId: string }) {
                     fontStyle: "italic",
                   }}
                 >
-                  "{participant.aiProfile}"
+                  &quot;{participant.aiProfile}&quot;
                 </p>
               )}
             </div>

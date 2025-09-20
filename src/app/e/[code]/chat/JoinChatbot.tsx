@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Chat, { ChatMessage } from "@/components/Chat";
 import { Button } from "@/components/ui";
 
@@ -130,199 +130,206 @@ export default function JoinChatbot({ eventId, eventName }: Props) {
     ]);
   };
 
-  const onSendMessage = async (text: string) => {
-    // show user message
-    push({ role: "user", content: text });
+  const onSendMessage = useCallback(
+    async (text: string) => {
+      // show user message
+      push({ role: "user", content: text });
 
-    if (step === "ask_name") {
-      nameRef.current = text.trim();
-      setIsTyping(true);
-      setStep("ask_photo");
-      setTimeout(() => {
-        push({
-          role: "assistant",
-          content:
-            "Nice to meet you! Upload a photo (optional). If you prefer to skip, type 'skip'.",
-        });
-        setIsTyping(false);
-      }, 600);
-      return;
-    }
-
-    if (step === "ask_photo") {
-      if (text.toLowerCase() === "keep") {
-        // keep LinkedIn photo
-      } else if (text.toLowerCase() !== "skip") {
-        avatarUrlRef.current = text; // accept URL for now
-      }
-      setIsTyping(true);
-      setStep("ask_about");
-      setTimeout(() => {
-        push({
-          role: "assistant",
-          content:
-            "Tell me a bit about yourself. What do you do, interests, goals?",
-        });
-        setIsTyping(false);
-      }, 500);
-      return;
-    }
-
-    if (step === "ask_about") {
-      aboutRef.current = text.trim();
-      setIsTyping(true);
-      setStep("ask_looking");
-      setTimeout(() => {
-        push({
-          role: "assistant",
-          content:
-            "Who would you like to meet? Describe the ideal person (skills, background, goals).",
-        });
-        setIsTyping(false);
-      }, 500);
-      return;
-    }
-
-    if (step === "ask_looking") {
-      lookingRef.current = text.trim();
-      setStep("submitting");
-      setIsTyping(true);
-
-      try {
-        // Create participant
-        const res = await fetch(`/api/events/${eventId}/participants`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name: nameRef.current,
-            avatarUrl: avatarUrlRef.current,
-            linkedinUrl: linkedinUrlRef.current,
-            aboutYou: aboutRef.current,
-            lookingFor: lookingRef.current,
-          }),
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data?.error || "Failed to join");
-        participantIdRef.current = data.id;
-
-        push({
-          role: "assistant",
-          content:
-            "Awesome. Creating your profile and finding your best matches...",
-        });
-
-        // Request matches
-        const m = await fetch(`/api/participants/${data.id}/match`, {
-          method: "POST",
-        }).then((r) => r.json());
-
-        if (m.matches && m.matches.length) {
-          const cards = (
-            <div style={{ display: "grid", gap: 12 }}>
-              {m.matches.map(
-                (x: {
-                  id: string;
-                  name: string;
-                  avatarUrl?: string | null;
-                  linkedinUrl?: string | null;
-                  aiProfile?: string | null;
-                  reason?: string;
-                }) => (
-                  <div
-                    key={x.id}
-                    style={{
-                      background: "rgba(30, 41, 59, 0.8)",
-                      border: "1px solid rgba(51,65,85,0.6)",
-                      borderRadius: 14,
-                      padding: 12,
-                    }}
-                  >
-                    <div
-                      style={{ display: "flex", alignItems: "center", gap: 10 }}
-                    >
-                      {x.avatarUrl ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={x.avatarUrl}
-                          alt={x.name}
-                          width={40}
-                          height={40}
-                          style={{ borderRadius: 20 }}
-                        />
-                      ) : (
-                        <div
-                          style={{
-                            width: 40,
-                            height: 40,
-                            borderRadius: 20,
-                            background: "#0ea5e9",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            color: "white",
-                            fontWeight: 700,
-                          }}
-                        >
-                          {x.name?.slice(0, 1) || "?"}
-                        </div>
-                      )}
-                      <div style={{ fontWeight: 700 }}>{x.name}</div>
-                    </div>
-                    {x.aiProfile && (
-                      <div style={{ marginTop: 8, color: "#cbd5e1" }}>
-                        {x.aiProfile}
-                      </div>
-                    )}
-                    {x.reason && (
-                      <div
-                        style={{
-                          marginTop: 6,
-                          fontStyle: "italic",
-                          color: "#9ca3af",
-                        }}
-                      >
-                        {x.reason}
-                      </div>
-                    )}
-                    {x.linkedinUrl && (
-                      <div style={{ marginTop: 8 }}>
-                        <a
-                          href={x.linkedinUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          style={{ color: "#38bdf8" }}
-                        >
-                          View LinkedIn →
-                        </a>
-                      </div>
-                    )}
-                  </div>
-                )
-              )}
-            </div>
-          );
-          push({
-            role: "assistant",
-            content: "Here are your top matches:",
-            rich: cards,
-          });
-        } else {
+      if (step === "ask_name") {
+        nameRef.current = text.trim();
+        setIsTyping(true);
+        setStep("ask_photo");
+        setTimeout(() => {
           push({
             role: "assistant",
             content:
-              "I couldn't find strong matches yet. Try again later as more people join.",
+              "Nice to meet you! Upload a photo (optional). If you prefer to skip, type 'skip'.",
           });
-        }
-        setIsTyping(false);
-        setStep("matched");
-      } catch (err: any) {
-        setIsTyping(false);
-        push({ role: "assistant", content: `Error: ${err.message}` });
-        setStep("ask_name");
+          setIsTyping(false);
+        }, 600);
+        return;
       }
-      return;
-    }
-  };
+
+      if (step === "ask_photo") {
+        if (text.toLowerCase() === "keep") {
+          // keep LinkedIn photo
+        } else if (text.toLowerCase() !== "skip") {
+          avatarUrlRef.current = text; // accept URL for now
+        }
+        setIsTyping(true);
+        setStep("ask_about");
+        setTimeout(() => {
+          push({
+            role: "assistant",
+            content:
+              "Tell me a bit about yourself. What do you do, interests, goals?",
+          });
+          setIsTyping(false);
+        }, 500);
+        return;
+      }
+
+      if (step === "ask_about") {
+        aboutRef.current = text.trim();
+        setIsTyping(true);
+        setStep("ask_looking");
+        setTimeout(() => {
+          push({
+            role: "assistant",
+            content:
+              "Who would you like to meet? Describe the ideal person (skills, background, goals).",
+          });
+          setIsTyping(false);
+        }, 500);
+        return;
+      }
+
+      if (step === "ask_looking") {
+        lookingRef.current = text.trim();
+        setStep("submitting");
+        setIsTyping(true);
+
+        try {
+          // Create participant
+          const res = await fetch(`/api/events/${eventId}/participants`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              name: nameRef.current,
+              avatarUrl: avatarUrlRef.current,
+              linkedinUrl: linkedinUrlRef.current,
+              aboutYou: aboutRef.current,
+              lookingFor: lookingRef.current,
+            }),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data?.error || "Failed to join");
+          participantIdRef.current = data.id;
+
+          push({
+            role: "assistant",
+            content:
+              "Awesome. Creating your profile and finding your best matches...",
+          });
+
+          // Request matches
+          const m = await fetch(`/api/participants/${data.id}/match`, {
+            method: "POST",
+          }).then((r) => r.json());
+
+          if (m.matches && m.matches.length) {
+            const cards = (
+              <div style={{ display: "grid", gap: 12 }}>
+                {m.matches.map(
+                  (x: {
+                    id: string;
+                    name: string;
+                    avatarUrl?: string | null;
+                    linkedinUrl?: string | null;
+                    aiProfile?: string | null;
+                    reason?: string;
+                  }) => (
+                    <div
+                      key={x.id}
+                      style={{
+                        background: "rgba(30, 41, 59, 0.8)",
+                        border: "1px solid rgba(51,65,85,0.6)",
+                        borderRadius: 14,
+                        padding: 12,
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 10,
+                        }}
+                      >
+                        {x.avatarUrl ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={x.avatarUrl}
+                            alt={x.name}
+                            width={40}
+                            height={40}
+                            style={{ borderRadius: 20 }}
+                          />
+                        ) : (
+                          <div
+                            style={{
+                              width: 40,
+                              height: 40,
+                              borderRadius: 20,
+                              background: "#0ea5e9",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              color: "white",
+                              fontWeight: 700,
+                            }}
+                          >
+                            {x.name?.slice(0, 1) || "?"}
+                          </div>
+                        )}
+                        <div style={{ fontWeight: 700 }}>{x.name}</div>
+                      </div>
+                      {x.aiProfile && (
+                        <div style={{ marginTop: 8, color: "#cbd5e1" }}>
+                          {x.aiProfile}
+                        </div>
+                      )}
+                      {x.reason && (
+                        <div
+                          style={{
+                            marginTop: 6,
+                            fontStyle: "italic",
+                            color: "#9ca3af",
+                          }}
+                        >
+                          {x.reason}
+                        </div>
+                      )}
+                      {x.linkedinUrl && (
+                        <div style={{ marginTop: 8 }}>
+                          <a
+                            href={x.linkedinUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            style={{ color: "#38bdf8" }}
+                          >
+                            View LinkedIn →
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                  )
+                )}
+              </div>
+            );
+            push({
+              role: "assistant",
+              content: "Here are your top matches:",
+              rich: cards,
+            });
+          } else {
+            push({
+              role: "assistant",
+              content:
+                "I couldn't find strong matches yet. Try again later as more people join.",
+            });
+          }
+          setIsTyping(false);
+          setStep("matched");
+        } catch (err: any) {
+          setIsTyping(false);
+          push({ role: "assistant", content: `Error: ${err.message}` });
+          setStep("ask_name");
+        }
+        return;
+      }
+    },
+    [eventId, step]
+  );
 
   return (
     <Chat
