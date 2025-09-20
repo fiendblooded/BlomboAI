@@ -1,18 +1,18 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { 
-  Container, 
-  Card, 
-  Title, 
-  Subtitle, 
-  FormGroup, 
-  Label, 
-  Input, 
-  Button, 
+import {
+  Container,
+  Card,
+  Title,
+  Subtitle,
+  Button,
   ErrorMessage,
-  GlobalStyle 
+  GlobalStyle,
 } from "@/components/ui";
+import CodeInput from "@/components/CodeInput";
+import { ThemeProvider } from "@/components/ThemeProvider";
+import ThemeToggle from "@/components/ThemeToggle";
 
 export default function JoinEntryPage() {
   const [code, setCode] = useState("");
@@ -24,7 +24,7 @@ export default function JoinEntryPage() {
     e.preventDefault();
     setError(null);
     setLoading(true);
-    
+
     try {
       const res = await fetch(`/api/resolve/${code}`);
       const data = await res.json();
@@ -41,48 +41,46 @@ export default function JoinEntryPage() {
   }
 
   return (
-    <>
+    <ThemeProvider>
       <GlobalStyle />
+      <ThemeToggle />
       <Container>
         <Card>
           <Title>Join an Event</Title>
           <Subtitle>Enter your event code to get started</Subtitle>
-          
+
           <form onSubmit={onSubmit}>
-            <FormGroup>
-              <Label>Event Code</Label>
-              <Input
-                placeholder="Enter 6-character code (e.g. ABC123)"
-                value={code}
-                onChange={(e) => setCode(e.target.value.toUpperCase())}
-                style={{ 
-                  textAlign: "center", 
-                  fontSize: "1.5rem", 
-                  letterSpacing: "0.2em",
-                  fontWeight: "600"
-                }}
-                maxLength={6}
-                required
-              />
-            </FormGroup>
-            
+            <CodeInput
+              value={code}
+              onChange={setCode}
+              onComplete={(completedCode) => {
+                if (completedCode.length === 6) {
+                  setCode(completedCode);
+                }
+              }}
+              disabled={loading}
+            />
+
             {error && <ErrorMessage>{error}</ErrorMessage>}
-            
+
             <Button disabled={loading || code.length < 6} type="submit">
               {loading ? "Finding Event..." : "Continue"}
             </Button>
           </form>
-          
-          <div style={{ 
-            marginTop: "2rem", 
-            textAlign: "center", 
-            color: "#666", 
-            fontSize: "0.9rem" 
-          }}>
-            <p>Don't have a code? Ask the event organizer or scan the QR code.</p>
+
+          <div
+            style={{
+              marginTop: "2rem",
+              textAlign: "center",
+              fontSize: "0.9rem",
+            }}
+          >
+            <p>
+              Don't have a code? Ask the event organizer or scan the QR code.
+            </p>
           </div>
         </Card>
       </Container>
-    </>
+    </ThemeProvider>
   );
 }

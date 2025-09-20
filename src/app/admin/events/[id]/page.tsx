@@ -2,16 +2,16 @@ import QRCode from "qrcode";
 import Link from "next/link";
 import { headers } from "next/headers";
 import Participants from "./participants";
-import { 
-  Container, 
-  Card, 
-  Title, 
-  Subtitle, 
-  QRContainer, 
-  Button, 
-  FlexRow, 
+import {
+  Container,
+  Card,
+  Title,
+  Subtitle,
+  QRContainer,
+  Button,
+  FlexRow,
   Badge,
-  GlobalStyle 
+  GlobalStyle,
 } from "@/components/ui";
 
 async function getBaseUrl() {
@@ -45,22 +45,25 @@ export default async function EventDashboard({
         <Card>
           <Title>{event.name}</Title>
           <Subtitle>Event Dashboard</Subtitle>
-          
-          <div style={{ 
-            background: "linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%)",
-            padding: "1.5rem",
-            borderRadius: "12px",
-            marginBottom: "2rem"
-          }}>
+
+          <div
+            style={{
+              background:
+                "linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%)",
+              padding: "1.5rem",
+              borderRadius: "12px",
+              marginBottom: "2rem",
+            }}
+          >
             <FlexRow style={{ marginBottom: "1rem" }}>
               <div>
                 <strong>Event Code:</strong> <Badge>{event.code}</Badge>
               </div>
             </FlexRow>
-            
+
             <div style={{ marginBottom: "1rem" }}>
               <strong>Share Link:</strong>{" "}
-              <Link 
+              <Link
                 href={`/e/${event.code}`}
                 style={{ color: "#667eea", textDecoration: "none" }}
               >
@@ -70,7 +73,9 @@ export default async function EventDashboard({
           </div>
 
           <QRContainer>
-            <h3 style={{ margin: 0, color: "#333" }}>QR Code for Easy Sharing</h3>
+            <h3 style={{ margin: 0, color: "#333" }}>
+              QR Code for Easy Sharing
+            </h3>
             <img src={qrDataUrl} alt="QR code" width={220} height={220} />
             <p style={{ color: "#666", textAlign: "center", margin: 0 }}>
               Attendees can scan this to join instantly
@@ -84,9 +89,12 @@ export default async function EventDashboard({
             <form
               action={async () => {
                 "use server";
-                await fetch(`${await getBaseUrl()}/api/admin/events/${event.id}`, {
-                  method: "POST",
-                });
+                await fetch(
+                  `${await getBaseUrl()}/api/admin/events/${event.id}`,
+                  {
+                    method: "POST",
+                  }
+                );
               }}
             >
               <Button type="submit" variant="danger">
@@ -96,7 +104,9 @@ export default async function EventDashboard({
           </FlexRow>
 
           <div>
-            <h2 style={{ marginBottom: "1rem", color: "#333" }}>Participants</h2>
+            <h2 style={{ marginBottom: "1rem", color: "#333" }}>
+              Participants
+            </h2>
             <Participants eventId={event.id} />
           </div>
         </Card>

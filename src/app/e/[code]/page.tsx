@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { headers } from "next/headers";
-import { 
-  Container, 
-  Card, 
-  Title, 
-  Subtitle, 
+import {
+  Container,
+  Card,
+  Title,
+  Subtitle,
   Button,
-  GlobalStyle 
+  GlobalStyle,
 } from "@/components/ui";
 
 async function getBaseUrl() {
@@ -30,7 +30,7 @@ export default async function CodeEntryPage({
 }) {
   const { code } = await params;
   const event = await resolve(code);
-  
+
   if (!event) {
     return (
       <>
@@ -38,7 +38,9 @@ export default async function CodeEntryPage({
         <Container>
           <Card>
             <Title>Event Not Found</Title>
-            <Subtitle>The event code you're looking for doesn't exist or has ended.</Subtitle>
+            <Subtitle>
+              The event code you're looking for doesn't exist or has ended.
+            </Subtitle>
             <div style={{ textAlign: "center" }}>
               <Button as={Link} href="/join" variant="secondary">
                 Try Another Code
@@ -49,30 +51,36 @@ export default async function CodeEntryPage({
       </>
     );
   }
-  
+
   return (
     <>
       <GlobalStyle />
       <Container>
         <Card>
           <Title>Welcome to {event.name}</Title>
-          <Subtitle>Ready to connect with like-minded people at this event?</Subtitle>
-          
-          <div style={{ 
-            textAlign: "center", 
-            padding: "2rem 0",
-            borderRadius: "12px",
-            background: "linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%)",
-            margin: "1rem 0"
-          }}>
+          <Subtitle>
+            Ready to connect with like-minded people at this event?
+          </Subtitle>
+
+          <div
+            style={{
+              textAlign: "center",
+              padding: "2rem 0",
+              borderRadius: "12px",
+              background:
+                "linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%)",
+              margin: "1rem 0",
+            }}
+          >
             <h3 style={{ margin: "0 0 0.5rem 0", color: "#667eea" }}>
               🎯 Smart Matching
             </h3>
             <p style={{ margin: 0, color: "#666" }}>
-              Our AI will analyze your profile and preferences to find your best connections
+              Our AI will analyze your profile and preferences to find your best
+              connections
             </p>
           </div>
-          
+
           <div style={{ textAlign: "center" }}>
             <Button as={Link} href={`/join/${event.id}/wizard`}>
               Start Networking →

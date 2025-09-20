@@ -1,18 +1,20 @@
 "use client";
 import { useEffect, useState } from "react";
-import { 
-  Container, 
-  Card, 
-  Title, 
-  Subtitle, 
-  Button, 
+import {
+  Container,
+  Card,
+  Title,
+  Subtitle,
+  Button,
   ErrorMessage,
   MatchCard,
   Avatar,
   FlexRow,
   Badge,
-  GlobalStyle 
+  GlobalStyle,
 } from "@/components/ui";
+import { ThemeProvider } from "@/components/ThemeProvider";
+import ThemeToggle from "@/components/ThemeToggle";
 
 export default function MatchesPage({
   params,
@@ -47,13 +49,16 @@ export default function MatchesPage({
   }, []);
 
   return (
-    <>
+    <ThemeProvider>
       <GlobalStyle />
+      <ThemeToggle />
       <Container>
         <Card>
           <Title>Your Matches</Title>
-          <Subtitle>AI-powered connections based on your profile and preferences</Subtitle>
-          
+          <Subtitle>
+            AI-powered connections based on your profile and preferences
+          </Subtitle>
+
           <div style={{ textAlign: "center", marginBottom: "2rem" }}>
             <Button
               onClick={fetchMatches}
@@ -65,9 +70,11 @@ export default function MatchesPage({
           </div>
 
           {error && <ErrorMessage>{error}</ErrorMessage>}
-          
+
           {matches.length === 0 && !loading && !error && (
-            <div style={{ textAlign: "center", padding: "2rem", color: "#666" }}>
+            <div
+              style={{ textAlign: "center", padding: "2rem", color: "#666" }}
+            >
               <p>No matches found yet. Try getting new matches!</p>
             </div>
           )}
@@ -80,45 +87,49 @@ export default function MatchesPage({
                     <Avatar src={match.avatarUrl} alt={match.name} />
                   )}
                   <div style={{ flex: 1 }}>
-                    <h3 style={{ margin: 0, color: "#333", fontSize: "1.25rem" }}>
+                    <h3
+                      style={{ margin: 0, color: "#333", fontSize: "1.25rem" }}
+                    >
                       {match.name}
                     </h3>
                     {match.linkedinUrl && (
-                      <a 
-                        href={match.linkedinUrl} 
-                        target="_blank" 
+                      <a
+                        href={match.linkedinUrl}
+                        target="_blank"
                         rel="noreferrer"
-                        style={{ 
-                          color: "#667eea", 
+                        style={{
+                          color: "#667eea",
                           textDecoration: "none",
-                          fontSize: "0.9rem"
+                          fontSize: "0.9rem",
                         }}
                       >
                         View LinkedIn Profile →
                       </a>
                     )}
                   </div>
-                  <Badge>
-                    Match #{index + 1}
-                  </Badge>
+                  <Badge>Match #{index + 1}</Badge>
                 </FlexRow>
-                
+
                 {match.aiProfile && (
-                  <p style={{ 
-                    margin: 0, 
-                    lineHeight: 1.6, 
-                    color: "#555",
-                    fontStyle: "italic"
-                  }}>
+                  <p
+                    style={{
+                      margin: 0,
+                      lineHeight: 1.6,
+                      color: "#555",
+                      fontStyle: "italic",
+                    }}
+                  >
                     "{match.aiProfile}"
                   </p>
                 )}
-                
-                <div style={{ 
-                  marginTop: "1rem", 
-                  fontSize: "0.875rem", 
-                  color: "#888" 
-                }}>
+
+                <div
+                  style={{
+                    marginTop: "1rem",
+                    fontSize: "0.875rem",
+                    color: "#888",
+                  }}
+                >
                   Compatibility Score: {(match.score * 100).toFixed(1)}%
                 </div>
               </MatchCard>
@@ -126,6 +137,6 @@ export default function MatchesPage({
           </div>
         </Card>
       </Container>
-    </>
+    </ThemeProvider>
   );
 }

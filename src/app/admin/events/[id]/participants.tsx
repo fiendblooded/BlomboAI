@@ -33,15 +33,17 @@ export default function Participants({ eventId }: { eventId: string }) {
       </div>
     );
   }
-  
+
   if (error) {
     return (
-      <div style={{ 
-        color: "#ff6b6b", 
-        background: "rgba(255, 107, 107, 0.1)", 
-        padding: "1rem", 
-        borderRadius: "8px" 
-      }}>
+      <div
+        style={{
+          color: "#ff6b6b",
+          background: "rgba(255, 107, 107, 0.1)",
+          padding: "1rem",
+          borderRadius: "8px",
+        }}
+      >
         {error}
       </div>
     );
@@ -49,14 +51,18 @@ export default function Participants({ eventId }: { eventId: string }) {
 
   if (items.length === 0) {
     return (
-      <div style={{ 
-        textAlign: "center", 
-        padding: "2rem", 
-        color: "#666",
-        background: "#f8f9fa",
-        borderRadius: "12px"
-      }}>
-        <p>No participants yet. Share your event code or QR code to get started!</p>
+      <div
+        style={{
+          textAlign: "center",
+          padding: "2rem",
+          color: "#666",
+          background: "#f8f9fa",
+          borderRadius: "12px",
+        }}
+      >
+        <p>
+          No participants yet. Share your event code or QR code to get started!
+        </p>
       </div>
     );
   }
@@ -74,35 +80,39 @@ export default function Participants({ eventId }: { eventId: string }) {
                 {participant.name}
               </div>
               {participant.linkedinUrl && (
-                <a 
-                  href={participant.linkedinUrl} 
-                  target="_blank" 
+                <a
+                  href={participant.linkedinUrl}
+                  target="_blank"
                   rel="noreferrer"
-                  style={{ 
-                    color: "#667eea", 
+                  style={{
+                    color: "#667eea",
                     textDecoration: "none",
-                    fontSize: "0.9rem"
+                    fontSize: "0.9rem",
                   }}
                 >
                   LinkedIn Profile →
                 </a>
               )}
               {participant.aiProfile && (
-                <p style={{ 
-                  margin: "0.5rem 0 0 0", 
-                  color: "#666", 
-                  fontSize: "0.9rem",
-                  fontStyle: "italic"
-                }}>
+                <p
+                  style={{
+                    margin: "0.5rem 0 0 0",
+                    color: "#666",
+                    fontSize: "0.9rem",
+                    fontStyle: "italic",
+                  }}
+                >
                   "{participant.aiProfile}"
                 </p>
               )}
             </div>
-            <div style={{ 
-              fontSize: "0.75rem", 
-              color: "#888",
-              textAlign: "right"
-            }}>
+            <div
+              style={{
+                fontSize: "0.75rem",
+                color: "#888",
+                textAlign: "right",
+              }}
+            >
               Joined {new Date(participant.createdAt).toLocaleDateString()}
             </div>
           </FlexRow>

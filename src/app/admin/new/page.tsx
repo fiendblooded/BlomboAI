@@ -1,19 +1,21 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { 
-  Container, 
-  Card, 
-  Title, 
-  Subtitle, 
-  FormGroup, 
-  Label, 
-  Input, 
-  TextArea, 
-  Button, 
+import {
+  Container,
+  Card,
+  Title,
+  Subtitle,
+  FormGroup,
+  Label,
+  Input,
+  TextArea,
+  Button,
   ErrorMessage,
-  GlobalStyle 
+  GlobalStyle,
 } from "@/components/ui";
+import { ThemeProvider } from "@/components/ThemeProvider";
+import ThemeToggle from "@/components/ThemeToggle";
 
 export default function NewEventPage() {
   const router = useRouter();
@@ -45,8 +47,9 @@ export default function NewEventPage() {
   }
 
   return (
-    <>
+    <ThemeProvider>
       <GlobalStyle />
+      <ThemeToggle />
       <Container>
         <Card>
           <Title>Create Event</Title>
@@ -54,34 +57,34 @@ export default function NewEventPage() {
           <form onSubmit={onSubmit}>
             <FormGroup>
               <Label>Event Name *</Label>
-              <Input 
-                value={name} 
-                onChange={(e) => setName(e.target.value)} 
+              <Input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
                 placeholder="Tech Conference 2024"
-                required 
+                required
               />
             </FormGroup>
             <FormGroup>
               <Label>Poster Image URL</Label>
-              <Input 
-                value={posterUrl} 
-                onChange={(e) => setPosterUrl(e.target.value)} 
+              <Input
+                value={posterUrl}
+                onChange={(e) => setPosterUrl(e.target.value)}
                 placeholder="https://example.com/poster.jpg"
               />
             </FormGroup>
             <FormGroup>
               <Label>Website URL</Label>
-              <Input 
-                value={websiteUrl} 
-                onChange={(e) => setWebsiteUrl(e.target.value)} 
+              <Input
+                value={websiteUrl}
+                onChange={(e) => setWebsiteUrl(e.target.value)}
                 placeholder="https://yourconference.com"
               />
             </FormGroup>
             <FormGroup>
               <Label>Description</Label>
-              <TextArea 
-                value={description} 
-                onChange={(e) => setDescription(e.target.value)} 
+              <TextArea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
                 placeholder="Tell attendees about your event..."
               />
             </FormGroup>
@@ -92,6 +95,6 @@ export default function NewEventPage() {
           </form>
         </Card>
       </Container>
-    </>
+    </ThemeProvider>
   );
 }

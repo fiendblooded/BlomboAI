@@ -2,20 +2,22 @@
 import { signIn, useSession } from "next-auth/react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { 
-  Container, 
-  Card, 
-  Title, 
-  Subtitle, 
-  FormGroup, 
-  Label, 
-  Input, 
-  TextArea, 
-  Button, 
+import {
+  Container,
+  Card,
+  Title,
+  Subtitle,
+  FormGroup,
+  Label,
+  Input,
+  TextArea,
+  Button,
   ErrorMessage,
   FlexRow,
-  GlobalStyle 
+  GlobalStyle,
 } from "@/components/ui";
+import { ThemeProvider } from "@/components/ThemeProvider";
+import ThemeToggle from "@/components/ThemeToggle";
 
 export default function JoinWizard({
   params,
@@ -60,17 +62,18 @@ export default function JoinWizard({
   }
 
   return (
-    <>
+    <ThemeProvider>
       <GlobalStyle />
+      <ThemeToggle />
       <Container>
         <Card>
           <Title>Join Event</Title>
           <Subtitle>Let's set up your profile for smart matching</Subtitle>
-          
+
           {!session && (
             <div style={{ marginBottom: "2rem", textAlign: "center" }}>
-              <Button 
-                variant="secondary" 
+              <Button
+                variant="secondary"
                 onClick={() => signIn("linkedin")}
                 style={{ marginBottom: "1rem" }}
               >
@@ -85,60 +88,60 @@ export default function JoinWizard({
           <form onSubmit={onSubmit}>
             <FormGroup>
               <Label>Your Name *</Label>
-              <Input 
-                value={name} 
-                onChange={(e) => setName(e.target.value)} 
+              <Input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
                 placeholder="John Doe"
-                required 
+                required
               />
             </FormGroup>
-            
+
             <FormGroup>
               <Label>Profile Picture URL</Label>
-              <Input 
-                value={avatarUrl} 
-                onChange={(e) => setAvatarUrl(e.target.value)} 
+              <Input
+                value={avatarUrl}
+                onChange={(e) => setAvatarUrl(e.target.value)}
                 placeholder="https://example.com/photo.jpg"
               />
             </FormGroup>
-            
+
             <FormGroup>
               <Label>LinkedIn Profile URL</Label>
-              <Input 
-                value={linkedinUrl} 
-                onChange={(e) => setLinkedinUrl(e.target.value)} 
+              <Input
+                value={linkedinUrl}
+                onChange={(e) => setLinkedinUrl(e.target.value)}
                 placeholder="https://linkedin.com/in/johndoe"
               />
             </FormGroup>
-            
+
             <FormGroup>
               <Label>About You *</Label>
-              <TextArea 
-                value={aboutYou} 
-                onChange={(e) => setAboutYou(e.target.value)} 
+              <TextArea
+                value={aboutYou}
+                onChange={(e) => setAboutYou(e.target.value)}
                 placeholder="Tell us about yourself, your background, interests, and what you do..."
-                required 
+                required
               />
             </FormGroup>
-            
+
             <FormGroup>
               <Label>Who Are You Looking to Meet? *</Label>
-              <TextArea 
-                value={lookingFor} 
-                onChange={(e) => setLookingFor(e.target.value)} 
+              <TextArea
+                value={lookingFor}
+                onChange={(e) => setLookingFor(e.target.value)}
                 placeholder="Describe the type of people you'd like to connect with at this event..."
-                required 
+                required
               />
             </FormGroup>
-            
+
             {error && <ErrorMessage>{error}</ErrorMessage>}
-            
+
             <Button disabled={loading} type="submit">
               {loading ? "Joining..." : "Join Event & Get Matches"}
             </Button>
           </form>
         </Card>
       </Container>
-    </>
+    </ThemeProvider>
   );
 }
