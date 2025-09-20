@@ -31,7 +31,9 @@ export default async function EventChatPage({
         <Container>
           <Card>
             <Title>Event Not Found</Title>
-            <Subtitle>The code "{code}" is invalid or expired.</Subtitle>
+            <Subtitle>
+              The code &quot;{code}&quot; is invalid or expired.
+            </Subtitle>
           </Card>
         </Container>
       </>

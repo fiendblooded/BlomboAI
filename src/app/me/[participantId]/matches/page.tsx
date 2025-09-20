@@ -51,6 +51,7 @@ export default function MatchesPage({
 
   useEffect(() => {
     fetchMatches();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -113,7 +114,7 @@ export default function MatchesPage({
                     fontStyle: "italic",
                   }}
                 >
-                  "{match.aiProfile}"
+                  &quot;{match.aiProfile}&quot;
                 </p>
               )}
 

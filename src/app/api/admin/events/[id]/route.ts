@@ -10,7 +10,7 @@ export async function PATCH(
     const { id } = await params;
     await connectToDatabase();
     const body = await req.json();
-    const update: Record<string, any> = {};
+    const update: Record<string, unknown> = {};
     if (typeof body.name === "string") update.name = body.name;
     if (typeof body.posterUrl === "string") update.posterUrl = body.posterUrl;
     if (typeof body.websiteUrl === "string")

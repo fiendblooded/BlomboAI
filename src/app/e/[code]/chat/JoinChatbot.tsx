@@ -121,7 +121,7 @@ export default function JoinChatbot({ eventId, eventName }: Props) {
       );
     }
     return null;
-  }, [step]);
+  }, [step, onSendMessage]);
 
   const push = (msg: Omit<ChatMessage, "id" | "timestamp">) => {
     setMessages((prev) => [
@@ -219,77 +219,86 @@ export default function JoinChatbot({ eventId, eventName }: Props) {
         if (m.matches && m.matches.length) {
           const cards = (
             <div style={{ display: "grid", gap: 12 }}>
-              {m.matches.map((x: any) => (
-                <div
-                  key={x.id}
-                  style={{
-                    background: "rgba(30, 41, 59, 0.8)",
-                    border: "1px solid rgba(51,65,85,0.6)",
-                    borderRadius: 14,
-                    padding: 12,
-                  }}
-                >
+              {m.matches.map(
+                (x: {
+                  id: string;
+                  name: string;
+                  avatarUrl?: string | null;
+                  linkedinUrl?: string | null;
+                  aiProfile?: string | null;
+                  reason?: string;
+                }) => (
                   <div
-                    style={{ display: "flex", alignItems: "center", gap: 10 }}
+                    key={x.id}
+                    style={{
+                      background: "rgba(30, 41, 59, 0.8)",
+                      border: "1px solid rgba(51,65,85,0.6)",
+                      borderRadius: 14,
+                      padding: 12,
+                    }}
                   >
-                    {x.avatarUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={x.avatarUrl}
-                        alt={x.name}
-                        width={40}
-                        height={40}
-                        style={{ borderRadius: 20 }}
-                      />
-                    ) : (
-                      <div
-                        style={{
-                          width: 40,
-                          height: 40,
-                          borderRadius: 20,
-                          background: "#0ea5e9",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          color: "white",
-                          fontWeight: 700,
-                        }}
-                      >
-                        {x.name?.slice(0, 1) || "?"}
+                    <div
+                      style={{ display: "flex", alignItems: "center", gap: 10 }}
+                    >
+                      {x.avatarUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={x.avatarUrl}
+                          alt={x.name}
+                          width={40}
+                          height={40}
+                          style={{ borderRadius: 20 }}
+                        />
+                      ) : (
+                        <div
+                          style={{
+                            width: 40,
+                            height: 40,
+                            borderRadius: 20,
+                            background: "#0ea5e9",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            color: "white",
+                            fontWeight: 700,
+                          }}
+                        >
+                          {x.name?.slice(0, 1) || "?"}
+                        </div>
+                      )}
+                      <div style={{ fontWeight: 700 }}>{x.name}</div>
+                    </div>
+                    {x.aiProfile && (
+                      <div style={{ marginTop: 8, color: "#cbd5e1" }}>
+                        {x.aiProfile}
                       </div>
                     )}
-                    <div style={{ fontWeight: 700 }}>{x.name}</div>
-                  </div>
-                  {x.aiProfile && (
-                    <div style={{ marginTop: 8, color: "#cbd5e1" }}>
-                      {x.aiProfile}
-                    </div>
-                  )}
-                  {x.reason && (
-                    <div
-                      style={{
-                        marginTop: 6,
-                        fontStyle: "italic",
-                        color: "#9ca3af",
-                      }}
-                    >
-                      {x.reason}
-                    </div>
-                  )}
-                  {x.linkedinUrl && (
-                    <div style={{ marginTop: 8 }}>
-                      <a
-                        href={x.linkedinUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        style={{ color: "#38bdf8" }}
+                    {x.reason && (
+                      <div
+                        style={{
+                          marginTop: 6,
+                          fontStyle: "italic",
+                          color: "#9ca3af",
+                        }}
                       >
-                        View LinkedIn →
-                      </a>
-                    </div>
-                  )}
-                </div>
-              ))}
+                        {x.reason}
+                      </div>
+                    )}
+                    {x.linkedinUrl && (
+                      <div style={{ marginTop: 8 }}>
+                        <a
+                          href={x.linkedinUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          style={{ color: "#38bdf8" }}
+                        >
+                          View LinkedIn →
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                )
+              )}
             </div>
           );
           push({
