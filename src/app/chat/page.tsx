@@ -6,6 +6,7 @@ import Chat, { ChatMessage } from "@/components/Chat";
 
 export default function ChatHomePage() {
   const router = useRouter();
+  const [mode, setMode] = useState<"idle" | "create" | "join">("idle");
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: "1",
@@ -49,6 +50,7 @@ export default function ChatHomePage() {
       let botResponse: ChatMessage;
 
       if (action === "create_event") {
+        setMode("create");
         botResponse = {
           id: (Date.now() + 1).toString(),
           content:
@@ -58,6 +60,7 @@ export default function ChatHomePage() {
           actions: [],
         };
       } else {
+        setMode("join");
         botResponse = {
           id: (Date.now() + 1).toString(),
           content:
@@ -116,6 +119,7 @@ export default function ChatHomePage() {
       const lowerMessage = message.toLowerCase();
 
       if (lowerMessage.startsWith("create")) {
+        setMode("create");
         botResponse = {
           id: (Date.now() + 1).toString(),
           content:
@@ -125,9 +129,10 @@ export default function ChatHomePage() {
           actions: [],
         };
       } else if (
-        /[a-z0-9]{6}/i.test(message) ||
-        lowerMessage.includes("join") ||
-        lowerMessage.includes("code")
+        mode === "join" &&
+        (/[a-z0-9]{6}/i.test(message) ||
+          lowerMessage.includes("join") ||
+          lowerMessage.includes("code"))
       ) {
         // Check if message contains a 6-digit code
         const codeMatch = message.match(/[a-z0-9]{6}/i);

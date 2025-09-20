@@ -121,7 +121,7 @@ export default function JoinChatbot({ eventId, eventName }: Props) {
       );
     }
     return null;
-  }, [step, onSendMessage]);
+  }, [step]);
 
   const push = (msg: Omit<ChatMessage, "id" | "timestamp">) => {
     setMessages((prev) => [
@@ -320,9 +320,10 @@ export default function JoinChatbot({ eventId, eventName }: Props) {
           }
           setIsTyping(false);
           setStep("matched");
-        } catch (err: any) {
+        } catch (err) {
           setIsTyping(false);
-          push({ role: "assistant", content: `Error: ${err.message}` });
+          const msg = err instanceof Error ? err.message : "Unknown error";
+          push({ role: "assistant", content: `Error: ${msg}` });
           setStep("ask_name");
         }
         return;
