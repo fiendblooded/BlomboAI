@@ -1,17 +1,32 @@
-Event Matcher – Connect people at events with smart matching
+# Event Matcher 🎯
 
-Tech: Next.js (App Router, TypeScript), MongoDB (Mongoose), NextAuth (LinkedIn), OpenAI, styled-components, React Query
+Connect people at events with smart AI-powered matching
 
-Quick start
+## ✨ Features
 
-1. Install dependencies
+- **Modern Dark UI** - Sleek mobile-app inspired design with light/dark themes
+- **6-Digit Code Entry** - Beautiful separated input fields for event codes
+- **LinkedIn Integration** - Optional LinkedIn OAuth for profile prefill
+- **AI Matching** - OpenAI-powered profile generation and similarity matching
+- **QR Code Sharing** - Generate QR codes for easy event joining
+- **Real-time Matching** - Get top 2 matches based on preferences
 
+## 🚀 Tech Stack
+
+- **Frontend**: Next.js 15 (App Router), TypeScript, styled-components
+- **Backend**: Next.js API Routes, MongoDB (Mongoose)
+- **Auth**: NextAuth.js with LinkedIn provider
+- **AI**: OpenAI API (GPT-4o-mini + text-embedding-3-small)
+- **Deployment**: Vercel-ready
+
+## 🛠️ Quick Start
+
+1. **Install dependencies**
 ```bash
 npm install
 ```
 
-2. Set environment variables (create .env.local)
-
+2. **Set environment variables** (create `.env.local`)
 ```bash
 MONGODB_URI=your_mongodb_connection_string
 MONGODB_DB_NAME=event-matcher
@@ -25,13 +40,19 @@ LINKEDIN_CLIENT_ID=...
 LINKEDIN_CLIENT_SECRET=...
 ```
 
-3. Run the app
-
+3. **Run the app**
 ```bash
 npm run dev
 ```
 
-Open http://localhost:3000
+4. **Open** http://localhost:3000
+
+## 📱 UI Features
+
+- **Theme Toggle** - Click the 🌙/☀️ button (top-right) to switch themes
+- **6-Digit Code Input** - Separate squares for each character with auto-focus
+- **Smooth Animations** - Modern transitions and hover effects
+- **Mobile Responsive** - Works great on all devices
 
 Core flows
 

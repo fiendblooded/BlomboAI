@@ -21,64 +21,68 @@ export const useTheme = () => {
 
 const lightTheme = {
   colors: {
-    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-    cardBackground: "white",
-    text: "#333",
-    textSecondary: "#666",
-    textMuted: "#888",
-    border: "#e1e8ed",
-    borderFocus: "#667eea",
-    primary: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+    background: "#f8fafc",
+    cardBackground: "rgba(255, 255, 255, 0.95)",
+    text: "#1e293b",
+    textSecondary: "#64748b",
+    textMuted: "#94a3b8",
+    border: "rgba(226, 232, 240, 0.8)",
+    borderFocus: "#3b82f6",
+    primary: "linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)",
     primaryText: "white",
     secondary: "transparent",
-    secondaryText: "#667eea",
-    secondaryBorder: "#667eea",
-    danger: "linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%)",
-    success: "#51cf66",
-    error: "#ff6b6b",
-    errorBackground: "rgba(255, 107, 107, 0.1)",
-    successBackground: "rgba(81, 207, 102, 0.1)",
-    gradientOverlay: "linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%)",
-    shadow: "rgba(0, 0, 0, 0.1)",
-    shadowHover: "rgba(0, 0, 0, 0.15)",
-  }
+    secondaryText: "#3b82f6",
+    secondaryBorder: "#3b82f6",
+    danger: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
+    success: "#10b981",
+    error: "#ef4444",
+    errorBackground: "rgba(239, 68, 68, 0.1)",
+    successBackground: "rgba(16, 185, 129, 0.1)",
+    gradientOverlay: "rgba(59, 130, 246, 0.05)",
+    shadow: "rgba(15, 23, 42, 0.08)",
+    shadowHover: "rgba(15, 23, 42, 0.12)",
+  },
 };
 
 const darkTheme = {
   colors: {
-    background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)",
-    cardBackground: "#2d2d44",
-    text: "#e4e4e7",
-    textSecondary: "#a1a1aa",
-    textMuted: "#71717a",
-    border: "#3f3f46",
-    borderFocus: "#8b5cf6",
-    primary: "linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)",
+    background: "#0f172a",
+    cardBackground: "rgba(30, 41, 59, 0.95)",
+    text: "#f1f5f9",
+    textSecondary: "#cbd5e1",
+    textMuted: "#64748b",
+    border: "rgba(51, 65, 85, 0.6)",
+    borderFocus: "#06b6d4",
+    primary: "linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)",
     primaryText: "white",
     secondary: "transparent",
-    secondaryText: "#8b5cf6",
-    secondaryBorder: "#8b5cf6",
+    secondaryText: "#06b6d4",
+    secondaryBorder: "#06b6d4",
     danger: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
-    success: "#22c55e",
+    success: "#10b981",
     error: "#ef4444",
-    errorBackground: "rgba(239, 68, 68, 0.1)",
-    successBackground: "rgba(34, 197, 94, 0.1)",
-    gradientOverlay: "linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(124, 58, 237, 0.1) 100%)",
-    shadow: "rgba(0, 0, 0, 0.3)",
-    shadowHover: "rgba(0, 0, 0, 0.4)",
-  }
+    errorBackground: "rgba(239, 68, 68, 0.15)",
+    successBackground: "rgba(16, 185, 129, 0.15)",
+    gradientOverlay: "rgba(6, 182, 212, 0.08)",
+    shadow: "rgba(0, 0, 0, 0.25)",
+    shadowHover: "rgba(0, 0, 0, 0.35)",
+  },
 };
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>("light");
+  const [theme, setTheme] = useState<Theme>("dark"); // Default to dark to match the mobile app style
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const savedTheme = localStorage.getItem("theme") as Theme;
     if (savedTheme) {
       setTheme(savedTheme);
     } else {
       // Check system preference
-      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      const prefersDark = window.matchMedia(
+        "(prefers-color-scheme: dark)"
+      ).matches;
       setTheme(prefersDark ? "dark" : "light");
     }
   }, []);
@@ -91,11 +95,18 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   const themeConfig = theme === "light" ? lightTheme : darkTheme;
 
+  // Prevent hydration mismatch by not rendering until mounted
+  if (!mounted) {
+    return (
+      <ThemeContext.Provider value={{ theme, toggleTheme }}>
+        <StyledThemeProvider theme={darkTheme}>{children}</StyledThemeProvider>
+      </ThemeContext.Provider>
+    );
+  }
+
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>
-      <StyledThemeProvider theme={themeConfig}>
-        {children}
-      </StyledThemeProvider>
+      <StyledThemeProvider theme={themeConfig}>{children}</StyledThemeProvider>
     </ThemeContext.Provider>
   );
 }

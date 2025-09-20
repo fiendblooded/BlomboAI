@@ -9,9 +9,9 @@ const ToggleButton = styled.button`
   width: 3rem;
   height: 3rem;
   border-radius: 50%;
-  border: 2px solid ${props => props.theme.colors.border};
-  background: ${props => props.theme.colors.cardBackground};
-  color: ${props => props.theme.colors.text};
+  border: 2px solid ${(props) => props.theme.colors.border};
+  background: ${(props) => props.theme.colors.cardBackground};
+  color: ${(props) => props.theme.colors.text};
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -19,11 +19,11 @@ const ToggleButton = styled.button`
   font-size: 1.25rem;
   transition: all 0.3s ease;
   z-index: 1000;
-  box-shadow: 0 4px 12px ${props => props.theme.colors.shadow};
+  box-shadow: 0 4px 12px ${(props) => props.theme.colors.shadow};
 
   &:hover {
     transform: scale(1.1);
-    box-shadow: 0 6px 20px ${props => props.theme.colors.shadowHover};
+    box-shadow: 0 6px 20px ${(props) => props.theme.colors.shadowHover};
   }
 
   &:active {
@@ -35,8 +35,11 @@ export default function ThemeToggle() {
   const { theme, toggleTheme } = useTheme();
 
   return (
-    <ToggleButton onClick={toggleTheme} title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}>
-      {theme === 'light' ? '🌙' : '☀️'}
+    <ToggleButton
+      onClick={toggleTheme}
+      title={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
+    >
+      {theme === "light" ? "🌙" : "☀️"}
     </ToggleButton>
   );
 }

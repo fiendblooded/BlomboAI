@@ -22,7 +22,6 @@ export async function POST(req: NextRequest) {
     let code = generateCode();
     // Ensure uniqueness by retrying a few times
     for (let i = 0; i < 5; i++) {
-      // eslint-disable-next-line no-await-in-loop
       const exists = await EventModel.findOne({ code }).lean();
       if (!exists) break;
       code = generateCode();
