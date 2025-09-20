@@ -2,6 +2,16 @@
 import styled, { createGlobalStyle } from "styled-components";
 
 export const GlobalStyle = createGlobalStyle`
+  :root {
+    --bg-color: #0f172a;
+    --text-color: #f1f5f9;
+  }
+
+  [data-theme='light'] {
+    --bg-color: #f8fafc;
+    --text-color: #0f172a;
+  }
+
   * {
     box-sizing: border-box;
     margin: 0;
@@ -10,10 +20,10 @@ export const GlobalStyle = createGlobalStyle`
   
   body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'SF Pro Display', Roboto, sans-serif;
-    background: #0f172a;
+    background: var(--bg-color);
     min-height: 100vh;
-    color: #f1f5f9;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    color: var(--text-color);
+    transition: background 0.3s ease, color 0.3s ease;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -51,7 +61,12 @@ export const Card = styled.div`
     left: 0;
     right: 0;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(6, 182, 212, 0.4), transparent);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(6, 182, 212, 0.4),
+      transparent
+    );
   }
 `;
 
@@ -73,7 +88,9 @@ export const Subtitle = styled.p`
   font-size: 1.1rem;
 `;
 
-export const Button = styled.button<{ variant?: "primary" | "secondary" | "danger" }>`
+export const Button = styled.button<{
+  variant?: "primary" | "secondary" | "danger";
+}>`
   width: 100%;
   padding: 1rem 2rem;
   border-radius: 16px;
@@ -95,7 +112,12 @@ export const Button = styled.button<{ variant?: "primary" | "secondary" | "dange
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.2),
+      transparent
+    );
     transition: left 0.5s;
   }
 
@@ -106,7 +128,8 @@ export const Button = styled.button<{ variant?: "primary" | "secondary" | "dange
       ? "transparent"
       : "linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)"};
   color: ${(props) => (props.variant === "secondary" ? "#06b6d4" : "white")};
-  border: ${(props) => (props.variant === "secondary" ? "2px solid #06b6d4" : "none")};
+  border: ${(props) =>
+    props.variant === "secondary" ? "2px solid #06b6d4" : "none"};
 
   &:hover {
     transform: translateY(-1px);
@@ -231,12 +254,18 @@ export const LoadingSpinner = styled.div`
   margin-right: 0.5rem;
 
   @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
   }
 `;
 
-export const Badge = styled.span<{ variant?: "success" | "warning" | "danger" }>`
+export const Badge = styled.span<{
+  variant?: "success" | "warning" | "danger";
+}>`
   display: inline-block;
   padding: 0.25rem 0.75rem;
   border-radius: 9999px;
@@ -260,14 +289,15 @@ export const Badge = styled.span<{ variant?: "success" | "warning" | "danger" }>
       : props.variant === "danger"
       ? "#fca5a5"
       : "#7dd3fc"};
-  border: 1px solid ${(props) =>
-    props.variant === "success"
-      ? "rgba(16, 185, 129, 0.3)"
-      : props.variant === "warning"
-      ? "rgba(245, 158, 11, 0.3)"
-      : props.variant === "danger"
-      ? "rgba(239, 68, 68, 0.3)"
-      : "rgba(6, 182, 212, 0.3)"};
+  border: 1px solid
+    ${(props) =>
+      props.variant === "success"
+        ? "rgba(16, 185, 129, 0.3)"
+        : props.variant === "warning"
+        ? "rgba(245, 158, 11, 0.3)"
+        : props.variant === "danger"
+        ? "rgba(239, 68, 68, 0.3)"
+        : "rgba(6, 182, 212, 0.3)"};
 `;
 
 export const LinkCard = styled.a`
@@ -290,7 +320,12 @@ export const LinkCard = styled.a`
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(6, 182, 212, 0.1), transparent);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(6, 182, 212, 0.1),
+      transparent
+    );
     transition: left 0.5s;
   }
 
@@ -339,4 +374,21 @@ export const FlexRow = styled.div`
   align-items: center;
   gap: 1rem;
   flex-wrap: wrap;
+`;
+
+// Simple avatar image used in admin and matches pages
+export const Avatar = styled.img`
+  width: 48px;
+  height: 48px;
+  border-radius: 9999px;
+  object-fit: cover;
+  border: 1px solid rgba(51, 65, 85, 0.6);
+`;
+
+// Card used to render participant/match items
+export const MatchCard = styled.div`
+  background: rgba(30, 41, 59, 0.9);
+  border: 1px solid rgba(51, 65, 85, 0.6);
+  border-radius: 16px;
+  padding: 1rem;
 `;

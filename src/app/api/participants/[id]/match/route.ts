@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/db";
 import { ParticipantModel } from "@/lib/models";
-import { cosineSimilarity } from "@/lib/ai";
+import { rankMatchesLLM } from "@/lib/ai";
 import mongoose from "mongoose";
+
+export const runtime = "nodejs";
 
 interface Params {
   params: Promise<{ id: string }>;
@@ -20,28 +22,37 @@ export async function POST(_req: NextRequest, { params }: Params) {
       _id: { $ne: self._id },
     }).exec();
 
-    const scored = others.map((p) => {
-      const s1 = cosineSimilarity(
-        self.preferencesEmbedding || [],
-        p.aiProfileEmbedding || []
-      );
-      const s2 = cosineSimilarity(
-        p.preferencesEmbedding || [],
-        self.aiProfileEmbedding || []
-      );
-      const score = 0.6 * s1 + 0.4 * s2;
-      return { participant: p, score };
+    const llmRanked = await rankMatchesLLM({
+      self: {
+        id: self._id.toString(),
+        name: self.name,
+        aiProfile: self.aiProfile || "",
+        preferences: self.preferences || "",
+      },
+      candidates: others.map((p) => ({
+        id: p._id.toString(),
+        name: p.name,
+        aiProfile: p.aiProfile || "",
+        preferences: p.preferences || "",
+      })),
+      topK: 2,
     });
 
-    scored.sort((a, b) => b.score - a.score);
-    const top2 = scored.slice(0, 2).map(({ participant, score }) => ({
-      id: participant._id.toString(),
-      name: participant.name,
-      avatarUrl: participant.avatarUrl || null,
-      linkedinUrl: participant.linkedinUrl || null,
-      aiProfile: participant.aiProfile || null,
-      score,
-    }));
+    const top2 = llmRanked
+      .map((r) => ({
+        p: others.find((x) => x._id.toString() === r.id),
+        reason: r.reason,
+      }))
+      .filter((x) => Boolean(x.p))
+      .map(({ p, reason }) => ({
+        id: p!._id.toString(),
+        name: p!.name,
+        avatarUrl: p!.avatarUrl || null,
+        linkedinUrl: p!.linkedinUrl || null,
+        aiProfile: p!.aiProfile || null,
+        reason,
+        score: 1,
+      }));
 
     self.lastMatchedAt = new Date();
     self.matches = [

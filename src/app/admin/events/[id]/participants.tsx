@@ -3,7 +3,16 @@ import { useEffect, useState } from "react";
 import { Avatar, FlexRow, MatchCard } from "@/components/ui";
 
 export default function Participants({ eventId }: { eventId: string }) {
-  const [items, setItems] = useState<any[]>([]);
+  const [items, setItems] = useState<
+    Array<{
+      id: string;
+      name: string;
+      avatarUrl?: string | null;
+      linkedinUrl?: string | null;
+      aiProfile?: string | null;
+      createdAt: string;
+    }>
+  >([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -15,8 +24,8 @@ export default function Participants({ eventId }: { eventId: string }) {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to load participants");
       setItems(data.participants || []);
-    } catch (err: any) {
-      setError(err.message || "Something went wrong");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
       setLoading(false);
     }

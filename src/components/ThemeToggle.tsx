@@ -1,45 +1,43 @@
 "use client";
-import styled from "styled-components";
-import { useTheme } from "./ThemeProvider";
-
-const ToggleButton = styled.button`
-  position: fixed;
-  top: 1rem;
-  right: 1rem;
-  width: 3rem;
-  height: 3rem;
-  border-radius: 50%;
-  border: 2px solid ${(props) => props.theme.colors.border};
-  background: ${(props) => props.theme.colors.cardBackground};
-  color: ${(props) => props.theme.colors.text};
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.25rem;
-  transition: all 0.3s ease;
-  z-index: 1000;
-  box-shadow: 0 4px 12px ${(props) => props.theme.colors.shadow};
-
-  &:hover {
-    transform: scale(1.1);
-    box-shadow: 0 6px 20px ${(props) => props.theme.colors.shadowHover};
-  }
-
-  &:active {
-    transform: scale(0.95);
-  }
-`;
+import { useEffect, useState } from "react";
 
 export default function ThemeToggle() {
-  const { theme, toggleTheme } = useTheme();
+  const [theme, setTheme] = useState<string>("dark");
+
+  useEffect(() => {
+    const saved = localStorage.getItem("theme-simple");
+    const next = saved || "dark";
+    setTheme(next);
+    document.documentElement.setAttribute("data-theme", next);
+  }, []);
+
+  const toggle = () => {
+    const next = theme === "light" ? "dark" : "light";
+    setTheme(next);
+    document.documentElement.setAttribute("data-theme", next);
+    localStorage.setItem("theme-simple", next);
+  };
 
   return (
-    <ToggleButton
-      onClick={toggleTheme}
+    <button
+      onClick={toggle}
       title={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
+      style={{
+        position: "fixed",
+        top: 12,
+        right: 12,
+        width: 44,
+        height: 44,
+        borderRadius: 22,
+        border: "1px solid rgba(148,163,184,0.4)",
+        background: "transparent",
+        color: "var(--text-color)",
+        fontSize: 18,
+        cursor: "pointer",
+        zIndex: 1000,
+      }}
     >
       {theme === "light" ? "🌙" : "☀️"}
-    </ToggleButton>
+    </button>
   );
 }

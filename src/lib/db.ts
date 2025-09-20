@@ -12,7 +12,6 @@ type MongooseCache = {
 };
 
 declare global {
-  // eslint-disable-next-line no-var
   var _mongoose: MongooseCache | undefined;
 }
 
@@ -27,8 +26,12 @@ export async function connectToDatabase(): Promise<typeof mongoose> {
   }
 
   if (!globalCache.promise) {
+    const DB_NAME = process.env.MONGODB_DB_NAME;
+    if (!DB_NAME) {
+      throw new Error("Missing MONGODB_DB_NAME in environment variables");
+    }
     globalCache.promise = mongoose.connect(MONGODB_URI, {
-      dbName: process.env.MONGODB_DB_NAME!,
+      dbName: DB_NAME,
     });
   }
 

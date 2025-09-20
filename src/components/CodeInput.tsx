@@ -12,12 +12,9 @@ const CodeContainer = styled.div`
 const CodeDigit = styled.input<{ $hasValue: boolean; $isFocused: boolean }>`
   width: 3.5rem;
   height: 3.5rem;
-  border: 2px solid ${(props) =>
-    props.$isFocused
-      ? "#06b6d4"
-      : props.$hasValue
-      ? "#10b981"
-      : "#334155"};
+  border: 2px solid
+    ${(props) =>
+      props.$isFocused ? "#06b6d4" : props.$hasValue ? "#10b981" : "#334155"};
   border-radius: 16px;
   text-align: center;
   font-size: 1.5rem;
@@ -28,7 +25,8 @@ const CodeDigit = styled.input<{ $hasValue: boolean; $isFocused: boolean }>`
   color: #f1f5f9;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   outline: none;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
 
   &:focus {
     box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.3), 0 4px 12px rgba(0, 0, 0, 0.25);
@@ -55,7 +53,12 @@ interface CodeInputProps {
   disabled?: boolean;
 }
 
-export default function CodeInput({ value, onChange, onComplete, disabled }: CodeInputProps) {
+export default function CodeInput({
+  value,
+  onChange,
+  onComplete,
+  disabled,
+}: CodeInputProps) {
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 

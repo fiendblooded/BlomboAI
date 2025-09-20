@@ -4,6 +4,8 @@ import { EventModel, ParticipantModel } from "@/lib/models";
 import { JoinParticipantSchema } from "@/lib/validation";
 import { embedText, generateProfileSummary } from "@/lib/ai";
 
+export const runtime = "nodejs";
+
 interface Params {
   params: Promise<{ id: string }>;
 }

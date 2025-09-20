@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, type ReactNode } from "react";
 import styled from "styled-components";
 
 const ChatContainer = styled.div`
@@ -52,16 +52,16 @@ const MessagesContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  
+
   &::-webkit-scrollbar {
     width: 6px;
   }
-  
+
   &::-webkit-scrollbar-track {
     background: rgba(51, 65, 85, 0.3);
     border-radius: 3px;
   }
-  
+
   &::-webkit-scrollbar-thumb {
     background: rgba(6, 182, 212, 0.5);
     border-radius: 3px;
@@ -79,10 +79,11 @@ const MessageBubble = styled.div<{ $isUser: boolean }>`
   padding: 0.75rem 1rem;
   border-radius: ${(props) =>
     props.$isUser ? "18px 18px 4px 18px" : "18px 18px 18px 4px"};
-  border: ${(props) => (props.$isUser ? "none" : "1px solid rgba(51, 65, 85, 0.6)")};
+  border: ${(props) =>
+    props.$isUser ? "none" : "1px solid rgba(51, 65, 85, 0.6)"};
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   animation: slideIn 0.3s ease-out;
-  
+
   @keyframes slideIn {
     from {
       opacity: 0;
@@ -111,7 +112,7 @@ const QuickActionButton = styled.button`
   font-size: 0.85rem;
   cursor: pointer;
   transition: all 0.2s ease;
-  
+
   &:hover {
     background: rgba(6, 182, 212, 0.25);
     transform: translateY(-1px);
@@ -131,20 +132,26 @@ const TypingIndicator = styled.div`
 const TypingDots = styled.div`
   display: flex;
   gap: 4px;
-  
+
   span {
     width: 6px;
     height: 6px;
     background: #06b6d4;
     border-radius: 50%;
     animation: typing 1.4s infinite ease-in-out;
-    
-    &:nth-child(1) { animation-delay: -0.32s; }
-    &:nth-child(2) { animation-delay: -0.16s; }
+
+    &:nth-child(1) {
+      animation-delay: -0.32s;
+    }
+    &:nth-child(2) {
+      animation-delay: -0.16s;
+    }
   }
-  
+
   @keyframes typing {
-    0%, 80%, 100% {
+    0%,
+    80%,
+    100% {
       transform: scale(0.8);
       opacity: 0.5;
     }
@@ -181,13 +188,13 @@ const ChatInput = styled.textarea`
   max-height: 120px;
   font-family: inherit;
   transition: all 0.2s ease;
-  
+
   &:focus {
     outline: none;
     border-color: #06b6d4;
     box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.2);
   }
-  
+
   &::placeholder {
     color: #64748b;
   }
@@ -206,12 +213,12 @@ const SendButton = styled.button`
   transition: all 0.2s ease;
   color: white;
   font-size: 1.2rem;
-  
+
   &:hover {
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(6, 182, 212, 0.4);
   }
-  
+
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
@@ -232,6 +239,7 @@ interface ChatMessage {
   role: "user" | "assistant";
   timestamp: Date;
   actions?: QuickAction[];
+  rich?: ReactNode;
 }
 
 interface ChatProps {
@@ -239,9 +247,18 @@ interface ChatProps {
   onSendMessage: (message: string) => void;
   isTyping?: boolean;
   placeholder?: string;
+  footerSlot?: ReactNode;
+  inputDisabled?: boolean;
 }
 
-export default function Chat({ messages, onSendMessage, isTyping = false, placeholder = "Type a message..." }: ChatProps) {
+export default function Chat({
+  messages,
+  onSendMessage,
+  isTyping = false,
+  placeholder = "Type a message...",
+  footerSlot,
+  inputDisabled = false,
+}: ChatProps) {
   const [inputValue, setInputValue] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -273,7 +290,7 @@ export default function Chat({ messages, onSendMessage, isTyping = false, placeh
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInputValue(e.target.value);
-    
+
     // Auto-resize textarea
     const textarea = e.target;
     textarea.style.height = "44px";
@@ -294,7 +311,7 @@ export default function Chat({ messages, onSendMessage, isTyping = false, placeh
         {messages.map((message) => (
           <div key={message.id}>
             <MessageBubble $isUser={message.role === "user"}>
-              {message.content}
+              {message.rich ? message.rich : message.content}
             </MessageBubble>
             {message.actions && message.actions.length > 0 && (
               <QuickActionsContainer>
@@ -307,7 +324,7 @@ export default function Chat({ messages, onSendMessage, isTyping = false, placeh
             )}
           </div>
         ))}
-        
+
         {isTyping && (
           <TypingIndicator>
             <TypingDots>
@@ -318,7 +335,7 @@ export default function Chat({ messages, onSendMessage, isTyping = false, placeh
             Assistant is typing...
           </TypingIndicator>
         )}
-        
+
         <div ref={messagesEndRef} />
       </MessagesContainer>
 
@@ -331,11 +348,16 @@ export default function Chat({ messages, onSendMessage, isTyping = false, placeh
             onKeyPress={handleKeyPress}
             placeholder={placeholder}
             rows={1}
+            disabled={inputDisabled}
           />
-          <SendButton onClick={handleSend} disabled={!inputValue.trim()}>
+          <SendButton
+            onClick={handleSend}
+            disabled={!inputValue.trim() || inputDisabled}
+          >
             ↗️
           </SendButton>
         </ChatInputWrapper>
+        {footerSlot}
       </ChatInputContainer>
     </ChatContainer>
   );

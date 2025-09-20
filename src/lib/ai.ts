@@ -35,3 +35,57 @@ export function cosineSimilarity(a: number[], b: number[]): number {
   if (normA === 0 || normB === 0) return 0;
   return dot / (normA * normB);
 }
+
+export async function rankMatchesLLM(args: {
+  self: { id: string; name: string; aiProfile?: string; preferences?: string };
+  candidates: Array<{
+    id: string;
+    name: string;
+    aiProfile?: string;
+    preferences?: string;
+  }>;
+  topK?: number;
+}): Promise<{ id: string; reason: string }[]> {
+  const { self, candidates } = args;
+  const topK = 1;
+
+  const system = `You are an expert networking assistant. Choose the best matches for the attendee based on bidirectional fit:
+- Fit A: How well a candidate's profile matches what the attendee is looking for
+- Fit B: How well the attendee's profile matches what the candidate is looking for
+Return exactly ${topK} best matches with short reasons. Respond as JSON { matches: [{ id, reason }] }`;
+
+  const payload = {
+    self,
+    candidates: candidates.map((c) => ({
+      id: c.id,
+      name: c.name,
+      aiProfile: c.aiProfile || "",
+      preferences: c.preferences || "",
+    })),
+  };
+
+  const res = await openai.chat.completions.create({
+    model: "gpt-4o-mini",
+    response_format: { type: "json_object" },
+    messages: [
+      { role: "system", content: system },
+      {
+        role: "user",
+        content: `Select top ${topK} matches for this attendee from the list. Data: ${JSON.stringify(
+          payload
+        )}`,
+      },
+    ],
+    temperature: 0.4,
+  });
+
+  try {
+    const content = res.choices[0]?.message?.content || "{}";
+    const parsed = JSON.parse(content) as {
+      matches?: { id: string; reason: string }[];
+    };
+    return (parsed.matches || []).slice(0, topK);
+  } catch {
+    return [];
+  }
+}

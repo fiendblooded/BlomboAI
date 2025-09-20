@@ -82,8 +82,8 @@ export default async function CodeEntryPage({
           </div>
 
           <div style={{ textAlign: "center" }}>
-            <Button as={Link} href={`/join/${event.id}/wizard`}>
-              Start Networking →
+            <Button as={Link} href={`/e/${code}/chat`}>
+              Open Chatbot →
             </Button>
           </div>
         </Card>

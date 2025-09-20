@@ -11,7 +11,16 @@ export type CreateEventInput = z.infer<typeof CreateEventSchema>;
 
 export const JoinParticipantSchema = z.object({
   name: z.string().min(2).max(120),
-  avatarUrl: z.string().url().optional(),
+  // Allow http(s) URL or data URL (base64 image)
+  avatarUrl: z
+    .string()
+    .regex(
+      /^(https?:\/\/[^\s]+|data:image\/(png|jpe?g|webp);base64,[A-Za-z0-9+/=]+)$/,
+      {
+        message: "Invalid image URL",
+      }
+    )
+    .optional(),
   linkedinUrl: z.string().url().optional(),
   aboutYou: z.string().min(10).max(800),
   lookingFor: z.string().min(10).max(800),
