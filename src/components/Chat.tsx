@@ -7,17 +7,17 @@ const ChatContainer = styled.div`
   flex-direction: column;
   height: 100vh;
   max-height: 600px;
-  background: #0f172a;
-  border-radius: 24px;
+  background: #ffffff;
+  border-radius: 12px;
   overflow: hidden;
-  border: 1px solid rgba(51, 65, 85, 0.6);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--card-border);
+  box-shadow: 0 8px 32px var(--shadow);
 `;
 
 const ChatHeader = styled.div`
-  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid rgba(51, 65, 85, 0.6);
+  background: #ffffff;
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid var(--card-border);
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -27,11 +27,12 @@ const BotAvatar = styled.div`
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+  background: #12140c;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.2rem;
+  color: #f3f0e4;
 `;
 
 const ChatTitle = styled.div`
@@ -71,17 +72,13 @@ const MessagesContainer = styled.div`
 const MessageBubble = styled.div<{ $isUser: boolean }>`
   max-width: 80%;
   align-self: ${(props) => (props.$isUser ? "flex-end" : "flex-start")};
-  background: ${(props) =>
-    props.$isUser
-      ? "linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)"
-      : "rgba(30, 41, 59, 0.8)"};
-  color: ${(props) => (props.$isUser ? "white" : "#f1f5f9")};
+  background: ${(props) => (props.$isUser ? "#12140C" : "#ffffff")};
+  color: ${(props) => (props.$isUser ? "#F3F0E4" : "var(--text-color)")};
   padding: 0.75rem 1rem;
-  border-radius: ${(props) =>
-    props.$isUser ? "18px 18px 4px 18px" : "18px 18px 18px 4px"};
+  border-radius: 14px;
   border: ${(props) =>
-    props.$isUser ? "none" : "1px solid rgba(51, 65, 85, 0.6)"};
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    props.$isUser ? "none" : "1px solid var(--card-border)"};
+  box-shadow: 0 2px 8px var(--shadow);
   animation: slideIn 0.3s ease-out;
 
   @keyframes slideIn {
@@ -164,9 +161,8 @@ const TypingDots = styled.div`
 
 const ChatInputContainer = styled.div`
   padding: 1rem;
-  border-top: 1px solid rgba(51, 65, 85, 0.6);
-  background: rgba(30, 41, 59, 0.5);
-  backdrop-filter: blur(10px);
+  border-top: 1px solid var(--card-border);
+  background: #ffffff;
 `;
 
 const ChatInputWrapper = styled.div`
@@ -177,46 +173,46 @@ const ChatInputWrapper = styled.div`
 
 const ChatInput = styled.textarea`
   flex: 1;
-  background: #1e293b;
-  border: 2px solid #334155;
-  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
   padding: 0.75rem 1rem;
-  color: #f1f5f9;
+  color: var(--text-color);
   font-size: 1rem;
   resize: none;
   min-height: 44px;
   max-height: 120px;
   font-family: inherit;
-  transition: all 0.2s ease;
+  transition: border-color 180ms ease, box-shadow 180ms ease;
 
   &:focus {
     outline: none;
-    border-color: #06b6d4;
-    box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.2);
+    border-color: rgba(14, 165, 233, 0.5);
+    box-shadow: 0 2px 12px var(--shadow);
   }
 
   &::placeholder {
-    color: #64748b;
+    color: var(--muted-text);
   }
 `;
 
 const SendButton = styled.button`
-  background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+  background: #12140c;
   border: none;
-  border-radius: 12px;
+  border-radius: 10px;
   width: 44px;
   height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.2s ease;
-  color: white;
+  transition: transform 120ms ease, box-shadow 180ms ease;
+  color: #f3f0e4;
   font-size: 1.2rem;
 
   &:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(6, 182, 212, 0.4);
+    box-shadow: 0 4px 12px var(--shadow);
   }
 
   &:disabled {

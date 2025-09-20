@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 import {
   Container,
   Card,
@@ -13,12 +14,9 @@ import {
   Badge,
 } from "@/components/ui";
 
-export default function MatchesPage({
-  params,
-}: {
-  params: { participantId: string };
-}) {
-  // Note: This is a client component, so params is not a Promise
+export default function MatchesPage() {
+  const params = useParams();
+  const participantId = (params?.participantId as string) || "";
   type Match = {
     id: string;
     name: string;
@@ -35,10 +33,9 @@ export default function MatchesPage({
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(
-        `/api/participants/${params.participantId}/match`,
-        { method: "POST" }
-      );
+      const res = await fetch(`/api/participants/${participantId}/match`, {
+        method: "POST",
+      });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to get matches");
       setMatches(data.matches || []);
