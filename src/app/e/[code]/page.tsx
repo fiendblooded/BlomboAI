@@ -39,7 +39,8 @@ export default async function CodeEntryPage({
           <Card>
             <Title>Event Not Found</Title>
             <Subtitle>
-              The event code you're looking for doesn't exist or has ended.
+              The event code you&apos;re looking for doesn&apos;t exist or has
+              ended.
             </Subtitle>
             <div style={{ textAlign: "center" }}>
               <Button as={Link} href="/join" variant="secondary">
