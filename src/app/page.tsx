@@ -17,7 +17,7 @@ export default function HomePage() {
         <Subtitle>
           Connect people at events with smart AI-powered matching
         </Subtitle>
-        <Grid>
+        <Grid columns={3}>
           <LinkCard as={Link} href="/admin/new">
             <h2>Create an Event →</h2>
             <p>
@@ -28,6 +28,10 @@ export default function HomePage() {
           <LinkCard as={Link} href="/join">
             <h2>Join an Event →</h2>
             <p>Enter an event code or scan a QR code to start networking.</p>
+          </LinkCard>
+          <LinkCard as={Link} href="/chat">
+            <h2>💬 Chat Assistant →</h2>
+            <p>Get help from our AI assistant to create or join events.</p>
           </LinkCard>
         </Grid>
       </Card>

@@ -22,11 +22,13 @@ Connect people at events with smart AI-powered matching
 ## 🛠️ Quick Start
 
 1. **Install dependencies**
+
 ```bash
 npm install
 ```
 
 2. **Set environment variables** (create `.env.local`)
+
 ```bash
 MONGODB_URI=your_mongodb_connection_string
 MONGODB_DB_NAME=event-matcher
@@ -41,6 +43,7 @@ LINKEDIN_CLIENT_SECRET=...
 ```
 
 3. **Run the app**
+
 ```bash
 npm run dev
 ```
