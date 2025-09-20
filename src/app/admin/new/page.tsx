@@ -1,6 +1,19 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { 
+  Container, 
+  Card, 
+  Title, 
+  Subtitle, 
+  FormGroup, 
+  Label, 
+  Input, 
+  TextArea, 
+  Button, 
+  ErrorMessage,
+  GlobalStyle 
+} from "@/components/ui";
 
 export default function NewEventPage() {
   const router = useRouter();
@@ -32,32 +45,53 @@ export default function NewEventPage() {
   }
 
   return (
-    <div style={{ maxWidth: 640, margin: "40px auto", padding: 16 }}>
-      <h1>Create Event</h1>
-      <form onSubmit={onSubmit} style={{ display: "grid", gap: 12 }}>
-        <label>
-          Name
-          <input value={name} onChange={(e) => setName(e.target.value)} required />
-        </label>
-        <label>
-          Poster URL
-          <input value={posterUrl} onChange={(e) => setPosterUrl(e.target.value)} />
-        </label>
-        <label>
-          Website URL
-          <input value={websiteUrl} onChange={(e) => setWebsiteUrl(e.target.value)} />
-        </label>
-        <label>
-          Description
-          <textarea value={description} onChange={(e) => setDescription(e.target.value)} />
-        </label>
-        {error && <p style={{ color: "crimson" }}>{error}</p>}
-        <button disabled={loading} type="submit">
-          {loading ? "Creating..." : "Create"}
-        </button>
-      </form>
-    </div>
+    <>
+      <GlobalStyle />
+      <Container>
+        <Card>
+          <Title>Create Event</Title>
+          <Subtitle>Set up your event and start connecting people</Subtitle>
+          <form onSubmit={onSubmit}>
+            <FormGroup>
+              <Label>Event Name *</Label>
+              <Input 
+                value={name} 
+                onChange={(e) => setName(e.target.value)} 
+                placeholder="Tech Conference 2024"
+                required 
+              />
+            </FormGroup>
+            <FormGroup>
+              <Label>Poster Image URL</Label>
+              <Input 
+                value={posterUrl} 
+                onChange={(e) => setPosterUrl(e.target.value)} 
+                placeholder="https://example.com/poster.jpg"
+              />
+            </FormGroup>
+            <FormGroup>
+              <Label>Website URL</Label>
+              <Input 
+                value={websiteUrl} 
+                onChange={(e) => setWebsiteUrl(e.target.value)} 
+                placeholder="https://yourconference.com"
+              />
+            </FormGroup>
+            <FormGroup>
+              <Label>Description</Label>
+              <TextArea 
+                value={description} 
+                onChange={(e) => setDescription(e.target.value)} 
+                placeholder="Tell attendees about your event..."
+              />
+            </FormGroup>
+            {error && <ErrorMessage>{error}</ErrorMessage>}
+            <Button disabled={loading} type="submit">
+              {loading ? "Creating..." : "Create Event"}
+            </Button>
+          </form>
+        </Card>
+      </Container>
+    </>
   );
 }
-
-

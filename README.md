@@ -1,36 +1,70 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+Event Matcher – Connect people at events with smart matching
 
-## Getting Started
+Tech: Next.js (App Router, TypeScript), MongoDB (Mongoose), NextAuth (LinkedIn), OpenAI, styled-components, React Query
 
-First, run the development server:
+Quick start
+
+1. Install dependencies
+
+```bash
+npm install
+```
+
+2. Set environment variables (create .env.local)
+
+```bash
+MONGODB_URI=your_mongodb_connection_string
+MONGODB_DB_NAME=event-matcher
+
+OPENAI_API_KEY=sk-...
+
+NEXTAUTH_SECRET=strong-random-string
+NEXTAUTH_URL=http://localhost:3000
+
+LINKEDIN_CLIENT_ID=...
+LINKEDIN_CLIENT_SECRET=...
+```
+
+3. Run the app
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Core flows
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Create event: Home → “Create an Event” → fill form → dashboard shows QR and share link
+- Join event: Open /e/{CODE} from QR/link or use “Join an Event” and enter code
+- Onboarding: Optionally “Continue with LinkedIn”, then fill About/Looking For → Join
+- Matching: After joining, you’re redirected to matches, with a button to re-match
 
-## Learn More
+API overview
 
-To learn more about Next.js, take a look at the following resources:
+- POST /api/events – create event
+- GET /api/events/:id – get event
+- GET /api/resolve/:code – resolve short code → event id
+- POST /api/events/:id/participants – join event (generates AI profile + embeddings)
+- POST /api/participants/:id/match – get top 2 matches in event
+- GET /api/events/:id/participants – list participants (admin view)
+- PATCH /api/admin/events/:id – update event
+- POST /api/admin/events/:id – end event
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Notes & ops
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- OpenAI: uses gpt-4o-mini for short bios; text-embedding-3-small for embeddings
+- Mongo: connection is cached for serverless; set MONGODB_URI and MONGODB_DB_NAME
+- Auth: LinkedIn via NextAuth; requires NEXTAUTH_SECRET and NEXTAUTH_URL
+- Images: currently via URL inputs; consider Vercel Blob/Cloudinary later
 
-## Deploy on Vercel
+Deploying to Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Push to GitHub and import the repo in Vercel
+2. Add environment variables in Vercel Project Settings → Environment Variables:
+   - MONGODB_URI, MONGODB_DB_NAME
+   - OPENAI_API_KEY
+   - NEXTAUTH_SECRET
+   - NEXTAUTH_URL=https://your-vercel-domain.vercel.app
+   - LINKEDIN_CLIENT_ID, LINKEDIN_CLIENT_SECRET
+3. Deploy – no extra config needed. QR links point to /e/{CODE}.

@@ -4,18 +4,31 @@ import { ParticipantModel } from "@/lib/models";
 import { cosineSimilarity } from "@/lib/ai";
 import mongoose from "mongoose";
 
-interface Params { params: { id: string } }
+interface Params {
+  params: Promise<{ id: string }>;
+}
 
 export async function POST(_req: NextRequest, { params }: Params) {
   try {
+    const { id } = await params;
     await connectToDatabase();
-    const self = await ParticipantModel.findById(params.id).exec();
-    if (!self) return NextResponse.json({ error: "Not found" }, { status: 404 });
-    const others = await ParticipantModel.find({ eventId: self.eventId, _id: { $ne: self._id } }).exec();
+    const self = await ParticipantModel.findById(id).exec();
+    if (!self)
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    const others = await ParticipantModel.find({
+      eventId: self.eventId,
+      _id: { $ne: self._id },
+    }).exec();
 
     const scored = others.map((p) => {
-      const s1 = cosineSimilarity(self.preferencesEmbedding || [], p.aiProfileEmbedding || []);
-      const s2 = cosineSimilarity(p.preferencesEmbedding || [], self.aiProfileEmbedding || []);
+      const s1 = cosineSimilarity(
+        self.preferencesEmbedding || [],
+        p.aiProfileEmbedding || []
+      );
+      const s2 = cosineSimilarity(
+        p.preferencesEmbedding || [],
+        self.aiProfileEmbedding || []
+      );
       const score = 0.6 * s1 + 0.4 * s2;
       return { participant: p, score };
     });
@@ -33,15 +46,20 @@ export async function POST(_req: NextRequest, { params }: Params) {
     self.lastMatchedAt = new Date();
     self.matches = [
       ...(self.matches || []),
-      ...top2.map((m) => ({ participantId: new mongoose.Types.ObjectId(m.id), score: m.score, createdAt: new Date() })),
+      ...top2.map((m) => ({
+        participantId: new mongoose.Types.ObjectId(m.id),
+        score: m.score,
+        createdAt: new Date(),
+      })),
     ];
     await self.save();
 
     return NextResponse.json({ matches: top2 });
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }
-
-

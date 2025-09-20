@@ -1,7 +1,25 @@
 "use client";
 import { useEffect, useState } from "react";
+import { 
+  Container, 
+  Card, 
+  Title, 
+  Subtitle, 
+  Button, 
+  ErrorMessage,
+  MatchCard,
+  Avatar,
+  FlexRow,
+  Badge,
+  GlobalStyle 
+} from "@/components/ui";
 
-export default function MatchesPage({ params }: { params: { participantId: string } }) {
+export default function MatchesPage({
+  params,
+}: {
+  params: { participantId: string };
+}) {
+  // Note: This is a client component, so params is not a Promise
   const [matches, setMatches] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -10,7 +28,10 @@ export default function MatchesPage({ params }: { params: { participantId: strin
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`/api/participants/${params.participantId}/match`, { method: "POST" });
+      const res = await fetch(
+        `/api/participants/${params.participantId}/match`,
+        { method: "POST" }
+      );
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to get matches");
       setMatches(data.matches || []);
@@ -23,41 +44,88 @@ export default function MatchesPage({ params }: { params: { participantId: strin
 
   useEffect(() => {
     fetchMatches();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
-    <div style={{ maxWidth: 800, margin: "40px auto", padding: 16 }}>
-      <h1>Your Matches</h1>
-      <button onClick={fetchMatches} disabled={loading} style={{ marginBottom: 16 }}>
-        {loading ? "Matching..." : "Get Matches Again"}
-      </button>
-      {error && <p style={{ color: "crimson" }}>{error}</p>}
-      {matches.length === 0 && !loading && <p>No matches yet.</p>}
-      <div style={{ display: "grid", gap: 12 }}>
-        {matches.map((m) => (
-          <div key={m.id} style={{ border: "1px solid #ddd", padding: 12, borderRadius: 8 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              {m.avatarUrl && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={m.avatarUrl} alt={m.name} width={48} height={48} style={{ borderRadius: "50%" }} />
-              )}
-              <div>
-                <div style={{ fontWeight: 600 }}>{m.name}</div>
-                {m.linkedinUrl && (
-                  <a href={m.linkedinUrl} target="_blank" rel="noreferrer">
-                    LinkedIn
-                  </a>
-                )}
-              </div>
-            </div>
-            {m.aiProfile && <p style={{ marginTop: 8 }}>{m.aiProfile}</p>}
-            <div style={{ fontSize: 12, color: "#666" }}>Score: {m.score.toFixed(3)}</div>
+    <>
+      <GlobalStyle />
+      <Container>
+        <Card>
+          <Title>Your Matches</Title>
+          <Subtitle>AI-powered connections based on your profile and preferences</Subtitle>
+          
+          <div style={{ textAlign: "center", marginBottom: "2rem" }}>
+            <Button
+              onClick={fetchMatches}
+              disabled={loading}
+              variant="secondary"
+            >
+              {loading ? "Finding Matches..." : "🔄 Get New Matches"}
+            </Button>
           </div>
-        ))}
-      </div>
-    </div>
+
+          {error && <ErrorMessage>{error}</ErrorMessage>}
+          
+          {matches.length === 0 && !loading && !error && (
+            <div style={{ textAlign: "center", padding: "2rem", color: "#666" }}>
+              <p>No matches found yet. Try getting new matches!</p>
+            </div>
+          )}
+
+          <div style={{ display: "grid", gap: "1rem" }}>
+            {matches.map((match, index) => (
+              <MatchCard key={match.id}>
+                <FlexRow style={{ marginBottom: "1rem" }}>
+                  {match.avatarUrl && (
+                    <Avatar src={match.avatarUrl} alt={match.name} />
+                  )}
+                  <div style={{ flex: 1 }}>
+                    <h3 style={{ margin: 0, color: "#333", fontSize: "1.25rem" }}>
+                      {match.name}
+                    </h3>
+                    {match.linkedinUrl && (
+                      <a 
+                        href={match.linkedinUrl} 
+                        target="_blank" 
+                        rel="noreferrer"
+                        style={{ 
+                          color: "#667eea", 
+                          textDecoration: "none",
+                          fontSize: "0.9rem"
+                        }}
+                      >
+                        View LinkedIn Profile →
+                      </a>
+                    )}
+                  </div>
+                  <Badge>
+                    Match #{index + 1}
+                  </Badge>
+                </FlexRow>
+                
+                {match.aiProfile && (
+                  <p style={{ 
+                    margin: 0, 
+                    lineHeight: 1.6, 
+                    color: "#555",
+                    fontStyle: "italic"
+                  }}>
+                    "{match.aiProfile}"
+                  </p>
+                )}
+                
+                <div style={{ 
+                  marginTop: "1rem", 
+                  fontSize: "0.875rem", 
+                  color: "#888" 
+                }}>
+                  Compatibility Score: {(match.score * 100).toFixed(1)}%
+                </div>
+              </MatchCard>
+            ))}
+          </div>
+        </Card>
+      </Container>
+    </>
   );
 }
-
-

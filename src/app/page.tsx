@@ -1,27 +1,27 @@
+"use client";
 import Link from "next/link";
-import styles from "./page.module.css";
+import { Container, Card, Title, Subtitle, Grid, LinkCard, GlobalStyle } from "@/components/ui";
 
 export default function HomePage() {
   return (
-    <main className={styles.main}>
-      <div className={styles.center}>
-        <h1>Event Matcher</h1>
-        <p>Connect people at events with smart matching.</p>
-      </div>
-      <div className={styles.grid}>
-        <Link className={styles.card} href="/admin/new">
-          <h2>
-            Create an Event <span>-&gt;</span>
-          </h2>
-          <p>Set up event details and get a shareable QR/link.</p>
-        </Link>
-        <Link className={styles.card} href="/join">
-          <h2>
-            Join an Event <span>-&gt;</span>
-          </h2>
-          <p>Enter a code or open via QR to start.</p>
-        </Link>
-      </div>
-    </main>
+    <>
+      <GlobalStyle />
+      <Container>
+        <Card>
+          <Title>Event Matcher</Title>
+          <Subtitle>Connect people at events with smart AI-powered matching</Subtitle>
+          <Grid>
+            <LinkCard as={Link} href="/admin/new">
+              <h2>Create an Event →</h2>
+              <p>Set up event details and get a shareable QR code and link for attendees.</p>
+            </LinkCard>
+            <LinkCard as={Link} href="/join">
+              <h2>Join an Event →</h2>
+              <p>Enter an event code or scan a QR code to start networking.</p>
+            </LinkCard>
+          </Grid>
+        </Card>
+      </Container>
+    </>
   );
 }

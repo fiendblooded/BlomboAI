@@ -1,37 +1,85 @@
 import Link from "next/link";
 import { headers } from "next/headers";
+import { 
+  Container, 
+  Card, 
+  Title, 
+  Subtitle, 
+  Button,
+  GlobalStyle 
+} from "@/components/ui";
 
-function getBaseUrl() {
-  const h = headers();
+async function getBaseUrl() {
+  const h = await headers();
   const host = h.get("x-forwarded-host") || h.get("host");
   const proto = h.get("x-forwarded-proto") || "http";
   return `${proto}://${host}`;
 }
 
 async function resolve(code: string) {
-  const base = getBaseUrl();
+  const base = await getBaseUrl();
   const res = await fetch(`${base}/api/resolve/${code}`, { cache: "no-store" });
   if (!res.ok) return null;
   return res.json();
 }
 
-export default async function CodeEntryPage({ params }: { params: { code: string } }) {
-  const event = await resolve(params.code);
+export default async function CodeEntryPage({
+  params,
+}: {
+  params: Promise<{ code: string }>;
+}) {
+  const { code } = await params;
+  const event = await resolve(code);
+  
   if (!event) {
     return (
-      <div style={{ maxWidth: 640, margin: "40px auto", padding: 16 }}>
-        <h1>Event not found</h1>
-        <p>Check the code and try again.</p>
-      </div>
+      <>
+        <GlobalStyle />
+        <Container>
+          <Card>
+            <Title>Event Not Found</Title>
+            <Subtitle>The event code you're looking for doesn't exist or has ended.</Subtitle>
+            <div style={{ textAlign: "center" }}>
+              <Button as={Link} href="/join" variant="secondary">
+                Try Another Code
+              </Button>
+            </div>
+          </Card>
+        </Container>
+      </>
     );
   }
+  
   return (
-    <div style={{ maxWidth: 640, margin: "40px auto", padding: 16 }}>
-      <h1>Join {event.name}</h1>
-      <p>Ready to join? Continue to the short onboarding.</p>
-      <Link href={`/join/${event.id}/wizard`}>Start</Link>
-    </div>
+    <>
+      <GlobalStyle />
+      <Container>
+        <Card>
+          <Title>Welcome to {event.name}</Title>
+          <Subtitle>Ready to connect with like-minded people at this event?</Subtitle>
+          
+          <div style={{ 
+            textAlign: "center", 
+            padding: "2rem 0",
+            borderRadius: "12px",
+            background: "linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%)",
+            margin: "1rem 0"
+          }}>
+            <h3 style={{ margin: "0 0 0.5rem 0", color: "#667eea" }}>
+              🎯 Smart Matching
+            </h3>
+            <p style={{ margin: 0, color: "#666" }}>
+              Our AI will analyze your profile and preferences to find your best connections
+            </p>
+          </div>
+          
+          <div style={{ textAlign: "center" }}>
+            <Button as={Link} href={`/join/${event.id}/wizard`}>
+              Start Networking →
+            </Button>
+          </div>
+        </Card>
+      </Container>
+    </>
   );
 }
-
-

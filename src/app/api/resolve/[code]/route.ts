@@ -3,14 +3,15 @@ import { connectToDatabase } from "@/lib/db";
 import { EventModel } from "@/lib/models";
 
 interface Params {
-  params: { code: string };
+  params: Promise<{ code: string }>;
 }
 
 export async function GET(_req: NextRequest, { params }: Params) {
   try {
+    const { code } = await params;
     await connectToDatabase();
     const eventDoc = await EventModel.findOne({
-      code: params.code.toUpperCase(),
+      code: code.toUpperCase(),
     }).exec();
     if (!eventDoc)
       return NextResponse.json({ error: "Not found" }, { status: 404 });

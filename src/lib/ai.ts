@@ -35,5 +35,3 @@ export function cosineSimilarity(a: number[], b: number[]): number {
   if (normA === 0 || normB === 0) return 0;
   return dot / (normA * normB);
 }
-
-
