@@ -7,6 +7,9 @@ import Chat, { ChatMessage } from "@/components/Chat";
 export default function ChatHomePage() {
   const router = useRouter();
   const [mode, setMode] = useState<"idle" | "create" | "join">("idle");
+  const [createStep, setCreateStep] = useState<"idle" | "name" | "done">(
+    "idle"
+  );
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: "1",
@@ -51,6 +54,7 @@ export default function ChatHomePage() {
 
       if (action === "create_event") {
         setMode("create");
+        setCreateStep("name");
         botResponse = {
           id: (Date.now() + 1).toString(),
           content:
@@ -112,6 +116,63 @@ export default function ChatHomePage() {
     setMessages((prev) => [...prev, userMessage]);
     setIsTyping(true);
 
+    // Creation flow first
+    if (mode === "create" && createStep === "name") {
+      (async () => {
+        try {
+          const res = await fetch("/api/events", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name: message.trim() }),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data?.error || "Failed to create event");
+
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: String(Date.now() + 1),
+              role: "assistant",
+              timestamp: new Date(),
+              content: `✨ Event created! Share code ${data.code}. I can open the dashboard for you.`,
+              actions: [
+                {
+                  label: "Open Event Dashboard",
+                  value: "open_event",
+                  action: () => router.push(`/admin/events/${data.id}`),
+                },
+                {
+                  label: `Join as Guest (${data.code})`,
+                  value: "join_guest",
+                  action: () => router.push(`/e/${data.code}/chat`),
+                },
+              ],
+            },
+          ]);
+          setMode("idle");
+          setCreateStep("done");
+        } catch (err) {
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: String(Date.now() + 1),
+              role: "assistant",
+              timestamp: new Date(),
+              content:
+                err instanceof Error
+                  ? `Error: ${err.message}`
+                  : "Something went wrong creating the event.",
+            },
+          ]);
+          setMode("idle");
+          setCreateStep("idle");
+        } finally {
+          setIsTyping(false);
+        }
+      })();
+      return;
+    }
+
     // Simple bot responses based on message content
     setTimeout(() => {
       let botResponse: ChatMessage;
@@ -120,6 +181,7 @@ export default function ChatHomePage() {
 
       if (lowerMessage.startsWith("create")) {
         setMode("create");
+        setCreateStep("name");
         botResponse = {
           id: (Date.now() + 1).toString(),
           content:

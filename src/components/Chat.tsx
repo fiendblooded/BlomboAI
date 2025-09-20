@@ -5,8 +5,8 @@ import styled from "styled-components";
 const ChatContainer = styled.div`
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  max-height: 600px;
+  height: 82vh;
+  max-height: none;
   background: #ffffff;
   border-radius: 12px;
   overflow: hidden;
@@ -23,26 +23,22 @@ const ChatHeader = styled.div`
   gap: 0.75rem;
 `;
 
-const BotAvatar = styled.div`
-  width: 40px;
-  height: 40px;
+const BotAvatar = styled.img`
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
-  background: #12140c;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.2rem;
-  color: #f3f0e4;
+  object-fit: cover;
+  border: 1px solid var(--card-border);
 `;
 
 const ChatTitle = styled.div`
-  color: #f1f5f9;
-  font-weight: 600;
-  font-size: 1.1rem;
+  color: var(--text-color);
+  font-weight: 700;
+  font-size: 1rem;
 `;
 
 const ChatSubtitle = styled.div`
-  color: #cbd5e1;
+  color: var(--muted-text);
   font-size: 0.85rem;
 `;
 
@@ -59,26 +55,32 @@ const MessagesContainer = styled.div`
   }
 
   &::-webkit-scrollbar-track {
-    background: rgba(51, 65, 85, 0.3);
+    background: rgba(18, 20, 12, 0.06);
     border-radius: 3px;
   }
 
   &::-webkit-scrollbar-thumb {
-    background: rgba(6, 182, 212, 0.5);
+    background: rgba(18, 20, 12, 0.18);
     border-radius: 3px;
   }
 `;
 
-const MessageBubble = styled.div<{ $isUser: boolean }>`
+const MessageBubble = styled.div<{ $isUser: boolean; $hasRich?: boolean }>`
   max-width: 80%;
   align-self: ${(props) => (props.$isUser ? "flex-end" : "flex-start")};
-  background: ${(props) => (props.$isUser ? "#12140C" : "#ffffff")};
+  background: ${(props) =>
+    props.$hasRich ? "transparent" : props.$isUser ? "#12140C" : "#ffffff"};
   color: ${(props) => (props.$isUser ? "#F3F0E4" : "var(--text-color)")};
-  padding: 0.75rem 1rem;
-  border-radius: 14px;
+  padding: ${(props) => (props.$hasRich ? 0 : "0.75rem 1rem")};
+  border-radius: ${(props) => (props.$hasRich ? 0 : 14)}px;
   border: ${(props) =>
-    props.$isUser ? "none" : "1px solid var(--card-border)"};
-  box-shadow: 0 2px 8px var(--shadow);
+    props.$hasRich
+      ? "none"
+      : props.$isUser
+      ? "none"
+      : "1px solid var(--card-border)"};
+  box-shadow: ${(props) =>
+    props.$hasRich ? "none" : "0 2px 8px var(--shadow)"};
   animation: slideIn 0.3s ease-out;
 
   @keyframes slideIn {
@@ -101,18 +103,19 @@ const QuickActionsContainer = styled.div`
 `;
 
 const QuickActionButton = styled.button`
-  background: rgba(6, 182, 212, 0.15);
-  color: #06b6d4;
-  border: 1px solid rgba(6, 182, 212, 0.3);
-  border-radius: 12px;
-  padding: 0.5rem 0.75rem;
+  background: #ffffff;
+  color: var(--text-color);
+  border: 1px solid var(--card-border);
+  border-radius: 9999px;
+  padding: 0.45rem 0.8rem;
   font-size: 0.85rem;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background 150ms ease, transform 120ms ease, box-shadow 180ms ease;
 
   &:hover {
-    background: rgba(6, 182, 212, 0.25);
+    background: rgba(18, 20, 12, 0.04);
     transform: translateY(-1px);
+    box-shadow: 0 3px 12px var(--shadow);
   }
 `;
 
@@ -296,9 +299,9 @@ export default function Chat({
   return (
     <ChatContainer>
       <ChatHeader>
-        <BotAvatar>🤖</BotAvatar>
+        <BotAvatar src="/blombo.png" alt="Blombo" />
         <div>
-          <ChatTitle>Event Assistant</ChatTitle>
+          <ChatTitle>Blombo</ChatTitle>
           <ChatSubtitle>Here to help you connect</ChatSubtitle>
         </div>
       </ChatHeader>
@@ -306,7 +309,10 @@ export default function Chat({
       <MessagesContainer>
         {messages.map((message) => (
           <div key={message.id}>
-            <MessageBubble $isUser={message.role === "user"}>
+            <MessageBubble
+              $isUser={message.role === "user"}
+              $hasRich={Boolean(message.rich)}
+            >
               {message.rich ? message.rich : message.content}
             </MessageBubble>
             {message.actions && message.actions.length > 0 && (

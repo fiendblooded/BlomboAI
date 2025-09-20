@@ -40,6 +40,11 @@ NEXTAUTH_URL=http://localhost:3000
 
 LINKEDIN_CLIENT_ID=...
 LINKEDIN_CLIENT_SECRET=...
+
+# Optional but recommended
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_key
+CLOUDINARY_SECRET=your_secret
 ```
 
 3. **Run the app**
@@ -56,6 +61,10 @@ npm run dev
 - **6-Digit Code Input** - Separate squares for each character with auto-focus
 - **Smooth Animations** - Modern transitions and hover effects
 - **Mobile Responsive** - Works great on all devices
+
+## 📸 Images via Cloudinary
+
+When a participant uploads a photo, the client compresses to ~512px and submits a `data:` URL. The API uploads it to Cloudinary and stores the returned `secure_url` in MongoDB. If you pass an external http(s) URL, it is stored as-is.
 
 Core flows
 

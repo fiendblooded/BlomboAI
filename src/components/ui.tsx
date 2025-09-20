@@ -221,37 +221,15 @@ export const Badge = styled.span<{
   variant?: "success" | "warning" | "danger";
 }>`
   display: inline-block;
-  padding: 0.25rem 0.75rem;
+  padding: 0.25rem 0.6rem;
   border-radius: 9999px;
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  background: ${(props) =>
-    props.variant === "success"
-      ? "rgba(16, 185, 129, 0.15)"
-      : props.variant === "warning"
-      ? "rgba(245, 158, 11, 0.15)"
-      : props.variant === "danger"
-      ? "rgba(239, 68, 68, 0.15)"
-      : "rgba(6, 182, 212, 0.15)"};
-  color: ${(props) =>
-    props.variant === "success"
-      ? "#6ee7b7"
-      : props.variant === "warning"
-      ? "#fbbf24"
-      : props.variant === "danger"
-      ? "#fca5a5"
-      : "#7dd3fc"};
-  border: 1px solid
-    ${(props) =>
-      props.variant === "success"
-        ? "rgba(16, 185, 129, 0.3)"
-        : props.variant === "warning"
-        ? "rgba(245, 158, 11, 0.3)"
-        : props.variant === "danger"
-        ? "rgba(239, 68, 68, 0.3)"
-        : "rgba(6, 182, 212, 0.3)"};
+  background: #ffffff;
+  color: var(--text-color);
+  border: 1px solid var(--card-border);
 `;
 
 export const LinkCard = styled.a`
@@ -341,9 +319,24 @@ export const Avatar = styled.img`
 
 // Card used to render participant/match items
 export const MatchCard = styled.div`
-  background: #ffffff;
+  background: linear-gradient(180deg, #ffffff 0%, #f3f0e4 100%);
   border: 1px solid var(--card-border);
-  border-radius: 12px;
-  padding: 1rem;
-  box-shadow: 0 4px 20px var(--shadow);
+  border-radius: 16px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 12px 30px rgba(18, 20, 12, 0.12);
+`;
+
+// Fallback avatar with initial
+export const InitialCircle = styled.div`
+  width: 56px;
+  height: 56px;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: #ffffff;
+  text-transform: uppercase;
+  box-shadow: 0 4px 14px rgba(18, 20, 12, 0.15);
+  border: 1px solid rgba(18, 20, 12, 0.12);
 `;

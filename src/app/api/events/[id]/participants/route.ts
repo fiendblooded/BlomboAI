@@ -3,6 +3,7 @@ import { connectToDatabase } from "@/lib/db";
 import { EventModel, ParticipantModel } from "@/lib/models";
 import { JoinParticipantSchema } from "@/lib/validation";
 import { embedText, generateProfileSummary } from "@/lib/ai";
+import { uploadBase64Image } from "@/lib/cloudinary";
 
 export const runtime = "nodejs";
 
@@ -43,10 +44,24 @@ export async function POST(req: NextRequest, { params }: Params) {
       embedText(lookingFor),
     ]);
 
+    let finalAvatarUrl: string | undefined = undefined;
+    if (avatarUrl) {
+      try {
+        if (avatarUrl.startsWith("data:")) {
+          const uploaded = await uploadBase64Image(avatarUrl);
+          finalAvatarUrl = uploaded || undefined;
+        } else {
+          finalAvatarUrl = avatarUrl; // remote URL
+        }
+      } catch (e) {
+        console.warn("Cloudinary upload failed", e);
+      }
+    }
+
     const participant = await ParticipantModel.create({
       eventId: event._id,
       name,
-      avatarUrl,
+      avatarUrl: finalAvatarUrl,
       linkedinUrl,
       answers: { aboutYou, lookingFor },
       aiProfile,

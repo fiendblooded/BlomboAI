@@ -1,7 +1,7 @@
 "use client";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Chat, { ChatMessage } from "@/components/Chat";
-import { Button } from "@/components/ui";
+import { Button, MatchCard, InitialCircle, FlexRow } from "@/components/ui";
 
 interface Props {
   eventId: string;
@@ -14,15 +14,17 @@ export default function JoinChatbot({ eventId, eventName }: Props) {
   const [step, setStep] = useState<
     | "intro"
     | "ask_name"
-    | "ask_photo"
     | "ask_about"
     | "ask_looking"
+    | "ask_linkedin"
     | "submitting"
     | "matched"
   >("intro");
 
   const nameRef = useRef<string>("");
-  const avatarUrlRef = useRef<string | undefined>(undefined);
+  // photos removed per request – keep variable to avoid wide changes (unused)
+  // photos removed per request
+  // const avatarUrlRef = useRef<string | undefined>(undefined);
   const linkedinUrlRef = useRef<string | undefined>(undefined);
   const aboutRef = useRef<string>("");
   const lookingRef = useRef<string>("");
@@ -34,7 +36,7 @@ export default function JoinChatbot({ eventId, eventName }: Props) {
         id: "m1",
         role: "assistant",
         timestamp: new Date(),
-        content: `Welcome to ${eventName}! Let's create your profile so I can match you.\n\nFirst, enter your name or use the LinkedIn button below.`,
+        content: `Welcome to ${eventName}! Let's create your profile so I can match you.\n\nFirst, enter your name and surname.`,
         actions: [],
       },
     ]);
@@ -49,16 +51,14 @@ export default function JoinChatbot({ eventId, eventName }: Props) {
         if (!res.ok) return;
         const json = await res.json();
         const name = json?.user?.name as string | undefined;
-        const image = json?.user?.image as string | undefined;
         if (name) {
           nameRef.current = name;
-          avatarUrlRef.current = image;
           push({ role: "assistant", content: `Hi ${name}!` });
-          setStep("ask_photo");
+          setStep("ask_about");
           push({
             role: "assistant",
             content:
-              "Upload a photo (optional). If you'd like to keep your LinkedIn photo, type 'keep'. Or type 'skip'.",
+              "Tell me a bit about yourself. What do you do, interests, goals?",
           });
         }
       } catch {}
@@ -67,59 +67,20 @@ export default function JoinChatbot({ eventId, eventName }: Props) {
   }, []);
 
   const footer = useMemo(() => {
-    if (step === "ask_name") {
-      const handleLinkedIn = async () => {
-        const callback = encodeURIComponent(window.location.href);
-        window.location.href = `/api/auth/signin/linkedin?callbackUrl=${callback}`;
-      };
-      return (
-        <div style={{ marginTop: 8 }}>
-          <Button onClick={handleLinkedIn}>Sign up with LinkedIn</Button>
-        </div>
-      );
-    }
-    if (step === "ask_photo") {
-      const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = () => {
-          const img = new Image();
-          img.onload = () => {
-            // Compress via canvas: max 512px dimension
-            const maxDim = 512;
-            let { width, height } = img as HTMLImageElement;
-            if (width > height && width > maxDim) {
-              height = Math.round((height * maxDim) / width);
-              width = maxDim;
-            } else if (height > maxDim) {
-              width = Math.round((width * maxDim) / height);
-              height = maxDim;
-            }
-            const canvas = document.createElement("canvas");
-            canvas.width = width;
-            canvas.height = height;
-            const ctx = canvas.getContext("2d");
-            if (ctx) ctx.drawImage(img, 0, 0, width, height);
-            const dataUrl = canvas.toDataURL("image/jpeg", 0.78);
-            avatarUrlRef.current = dataUrl; // store as base64 data URL
-            onSendMessage("uploaded photo");
-          };
-          img.src = String(reader.result);
-        };
-        reader.readAsDataURL(file);
-      };
-      return (
-        <div style={{ marginTop: 8 }}>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={onFileChange}
-            style={{ color: "#cbd5e1" }}
-          />
-        </div>
-      );
-    }
+    // if (step === "ask_name") {
+    //   const handleLinkedIn = async () => {
+    //     const callback = encodeURIComponent(window.location.href);
+    //     window.location.href = `/api/auth/signin/linkedin?callbackUrl=${callback}`;
+    //   };
+    //   return (
+    //     <div style={{ marginTop: 8 }}>
+    //       <Button onClick={handleLinkedIn} variant="secondary">
+    //         <span className="fa fa-linkedin" style={{ marginRight: 8 }} />
+    //         Continue with LinkedIn
+    //       </Button>
+    //     </div>
+    //   );
+    // }
     return null;
   }, [step]);
 
@@ -138,36 +99,19 @@ export default function JoinChatbot({ eventId, eventName }: Props) {
       if (step === "ask_name") {
         nameRef.current = text.trim();
         setIsTyping(true);
-        setStep("ask_photo");
+        setStep("ask_about");
         setTimeout(() => {
           push({
             role: "assistant",
             content:
-              "Nice to meet you! Upload a photo (optional). If you prefer to skip, type 'skip'.",
+              "Nice to meet you! Tell me a bit about yourself: your interests, field of work, aspiration",
           });
           setIsTyping(false);
         }, 600);
         return;
       }
 
-      if (step === "ask_photo") {
-        if (text.toLowerCase() === "keep") {
-          // keep LinkedIn photo
-        } else if (text.toLowerCase() !== "skip") {
-          avatarUrlRef.current = text; // accept URL for now
-        }
-        setIsTyping(true);
-        setStep("ask_about");
-        setTimeout(() => {
-          push({
-            role: "assistant",
-            content:
-              "Tell me a bit about yourself. What do you do, interests, goals?",
-          });
-          setIsTyping(false);
-        }, 500);
-        return;
-      }
+      // photo step removed
 
       if (step === "ask_about") {
         aboutRef.current = text.trim();
@@ -186,6 +130,25 @@ export default function JoinChatbot({ eventId, eventName }: Props) {
 
       if (step === "ask_looking") {
         lookingRef.current = text.trim();
+        setStep("ask_linkedin");
+        setIsTyping(true);
+        setTimeout(() => {
+          push({
+            role: "assistant",
+            content:
+              "Please paste your LinkedIn profile URL (optional) so others can connect. Type 'skip' to continue without it.",
+          });
+          setIsTyping(false);
+        }, 400);
+        return;
+      }
+
+      if (step === "ask_linkedin") {
+        const url = text.trim();
+        if (url.toLowerCase() !== "skip") {
+          const maybe = url.match(/^https?:\/\/[^\s]+$/i)?.[0];
+          if (maybe) linkedinUrlRef.current = maybe;
+        }
         setStep("submitting");
         setIsTyping(true);
 
@@ -196,7 +159,6 @@ export default function JoinChatbot({ eventId, eventName }: Props) {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               name: nameRef.current,
-              avatarUrl: avatarUrlRef.current,
               linkedinUrl: linkedinUrlRef.current,
               aboutYou: aboutRef.current,
               lookingFor: lookingRef.current,
@@ -219,89 +181,74 @@ export default function JoinChatbot({ eventId, eventName }: Props) {
 
           if (m.matches && m.matches.length) {
             const cards = (
-              <div style={{ display: "grid", gap: 12 }}>
+              <div style={{ display: "grid", gap: 14 }}>
                 {m.matches.map(
                   (x: {
                     id: string;
                     name: string;
-                    avatarUrl?: string | null;
                     linkedinUrl?: string | null;
                     aiProfile?: string | null;
                     reason?: string;
                   }) => (
-                    <div
+                    <MatchCard
                       key={x.id}
                       style={{
-                        background: "rgba(30, 41, 59, 0.8)",
-                        border: "1px solid rgba(51,65,85,0.6)",
-                        borderRadius: 14,
-                        padding: 12,
+                        background: "#ffffff",
+                        boxShadow: "0 8px 22px rgba(18,20,12,0.1)",
                       }}
                     >
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 10,
-                        }}
+                      <FlexRow
+                        style={{ marginBottom: 8, alignItems: "flex-start" }}
                       >
-                        {x.avatarUrl ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={x.avatarUrl}
-                            alt={x.name}
-                            width={40}
-                            height={40}
-                            style={{ borderRadius: 20 }}
-                          />
-                        ) : (
-                          <div
-                            style={{
-                              width: 40,
-                              height: 40,
-                              borderRadius: 20,
-                              background: "#0ea5e9",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              color: "white",
-                              fontWeight: 700,
-                            }}
-                          >
-                            {x.name?.slice(0, 1) || "?"}
-                          </div>
-                        )}
-                        <div style={{ fontWeight: 700 }}>{x.name}</div>
-                      </div>
-                      {x.aiProfile && (
-                        <div style={{ marginTop: 8, color: "#cbd5e1" }}>
-                          {x.aiProfile}
+                        <InitialCircle
+                          style={{
+                            background: `hsl(${
+                              ((x.name?.charCodeAt(0) || 65) * 33) % 360
+                            } 70% 45%)`,
+                          }}
+                        >
+                          {x.name?.slice(0, 1) || "?"}
+                        </InitialCircle>
+                        <div style={{ fontWeight: 700, color: "#12140C" }}>
+                          {x.name}
                         </div>
+                      </FlexRow>
+                      {x.aiProfile && (
+                        <p
+                          style={{
+                            margin: 0,
+                            lineHeight: 1.6,
+                            color: "#444",
+                            fontStyle: "italic",
+                          }}
+                        >
+                          {x.aiProfile}
+                        </p>
                       )}
                       {x.reason && (
-                        <div
+                        <p
                           style={{
-                            marginTop: 6,
+                            marginTop: 8,
                             fontStyle: "italic",
-                            color: "#9ca3af",
+                            color: "#6b7280",
                           }}
                         >
                           {x.reason}
-                        </div>
+                        </p>
                       )}
                       {x.linkedinUrl && (
-                        <div style={{ marginTop: 8 }}>
+                        <div style={{ marginTop: 10 }}>
                           <a
                             href={x.linkedinUrl}
                             target="_blank"
                             rel="noreferrer"
-                            style={{ color: "#38bdf8" }}
+                            style={{ color: "#0EA5E9", textDecoration: "none" }}
                           >
                             View LinkedIn →
                           </a>
                         </div>
                       )}
-                    </div>
+                    </MatchCard>
                   )
                 )}
               </div>
@@ -340,12 +287,12 @@ export default function JoinChatbot({ eventId, eventName }: Props) {
       placeholder={
         step === "ask_name"
           ? "Type your name..."
-          : step === "ask_photo"
-          ? "Paste a photo URL or type 'skip'"
           : step === "ask_about"
           ? "Describe yourself..."
           : step === "ask_looking"
           ? "Who are you looking to meet?"
+          : step === "ask_linkedin"
+          ? "Paste LinkedIn URL or type 'skip'"
           : "Type a message..."
       }
       footerSlot={footer}

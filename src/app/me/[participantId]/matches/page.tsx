@@ -9,7 +9,7 @@ import {
   Button,
   ErrorMessage,
   MatchCard,
-  Avatar,
+  InitialCircle,
   FlexRow,
   Badge,
 } from "@/components/ui";
@@ -24,6 +24,7 @@ export default function MatchesPage() {
     linkedinUrl?: string | null;
     aiProfile?: string | null;
     score: number;
+    reason?: string;
   };
   const [matches, setMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(false);
@@ -75,13 +76,31 @@ export default function MatchesPage() {
 
         <div style={{ display: "grid", gap: "1rem" }}>
           {matches.map((match, index) => (
-            <MatchCard key={match.id}>
-              <FlexRow style={{ marginBottom: "1rem" }}>
-                {match.avatarUrl && (
-                  <Avatar src={match.avatarUrl} alt={match.name} />
-                )}
+            <MatchCard
+              key={match.id}
+              style={{
+                borderRadius: 16,
+                padding: "1.25rem 1.5rem",
+                boxShadow: "0 12px 30px rgba(18,20,12,0.12)",
+                border: "1px solid rgba(18,20,12,0.12)",
+              }}
+            >
+              <FlexRow
+                style={{ marginBottom: "1rem", alignItems: "flex-start" }}
+              >
+                <InitialCircle
+                  style={{
+                    background: `hsl(${
+                      (match.name.charCodeAt(0) * 33) % 360
+                    } 70% 45%)`,
+                  }}
+                >
+                  {match.name.slice(0, 1)}
+                </InitialCircle>
                 <div style={{ flex: 1 }}>
-                  <h3 style={{ margin: 0, color: "#333", fontSize: "1.25rem" }}>
+                  <h3
+                    style={{ margin: 0, color: "#12140C", fontSize: "1.1rem" }}
+                  >
                     {match.name}
                   </h3>
                   {match.linkedinUrl && (
@@ -90,7 +109,7 @@ export default function MatchesPage() {
                       target="_blank"
                       rel="noreferrer"
                       style={{
-                        color: "#667eea",
+                        color: "#0EA5E9",
                         textDecoration: "none",
                         fontSize: "0.9rem",
                       }}
@@ -107,7 +126,7 @@ export default function MatchesPage() {
                   style={{
                     margin: 0,
                     lineHeight: 1.6,
-                    color: "#555",
+                    color: "#444",
                     fontStyle: "italic",
                   }}
                 >
@@ -115,15 +134,17 @@ export default function MatchesPage() {
                 </p>
               )}
 
-              <div
-                style={{
-                  marginTop: "1rem",
-                  fontSize: "0.875rem",
-                  color: "#888",
-                }}
-              >
-                Compatibility Score: {(match.score * 100).toFixed(1)}%
-              </div>
+              {match.reason && (
+                <p
+                  style={{
+                    marginTop: "0.75rem",
+                    fontStyle: "italic",
+                    color: "#6b7280",
+                  }}
+                >
+                  {match.reason}
+                </p>
+              )}
             </MatchCard>
           ))}
         </div>

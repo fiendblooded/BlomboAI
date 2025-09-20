@@ -47,12 +47,15 @@ export async function rankMatchesLLM(args: {
   topK?: number;
 }): Promise<{ id: string; reason: string }[]> {
   const { self, candidates } = args;
-  const topK = 1;
+  const topK = 2;
 
-  const system = `You are an expert networking assistant. Choose the best matches for the attendee based on bidirectional fit:
-- Fit A: How well a candidate's profile matches what the attendee is looking for
-- Fit B: How well the attendee's profile matches what the candidate is looking for
-Return exactly ${topK} best matches with short reasons. Respond as JSON { matches: [{ id, reason }] }`;
+  const system = `You are an expert networking assistant. Rank candidates by mutual fit (both sides benefit).
+Write a friendly, plain‑English reason for each chosen candidate:
+- 1–2 sentences, max ~35 words
+- Explain why this person is a great match and what they can do together
+- Mention names where helpful
+- Do NOT use labels like "Fit A" or "Fit B", no scores, no bullet points
+Return exactly ${topK} matches as strict JSON: { "matches": [{ "id": "...", "reason": "..." }] }`;
 
   const payload = {
     self,
@@ -65,7 +68,7 @@ Return exactly ${topK} best matches with short reasons. Respond as JSON { matche
   };
 
   const res = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
+    model: "gpt-5",
     response_format: { type: "json_object" },
     messages: [
       { role: "system", content: system },
@@ -76,7 +79,6 @@ Return exactly ${topK} best matches with short reasons. Respond as JSON { matche
         )}`,
       },
     ],
-    temperature: 0.4,
   });
 
   try {
