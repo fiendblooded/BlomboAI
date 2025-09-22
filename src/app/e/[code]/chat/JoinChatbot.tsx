@@ -1,7 +1,7 @@
 "use client";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Chat, { ChatMessage } from "@/components/Chat";
-import { Button, MatchCard, InitialCircle, FlexRow } from "@/components/ui";
+import { MatchCard, InitialCircle, FlexRow } from "@/components/ui";
 
 interface Props {
   eventId: string;
@@ -14,6 +14,7 @@ export default function JoinChatbot({ eventId, eventName }: Props) {
   const [step, setStep] = useState<
     | "intro"
     | "ask_name"
+    | "ask_email"
     | "ask_about"
     | "ask_looking"
     | "ask_linkedin"
@@ -22,13 +23,18 @@ export default function JoinChatbot({ eventId, eventName }: Props) {
   >("intro");
 
   const nameRef = useRef<string>("");
+  const emailRef = useRef<string>("");
   // photos removed per request – keep variable to avoid wide changes (unused)
   // photos removed per request
   // const avatarUrlRef = useRef<string | undefined>(undefined);
   const linkedinUrlRef = useRef<string | undefined>(undefined);
   const aboutRef = useRef<string>("");
+  const aboutOneRef = useRef<string>("");
+  const aboutTwoRef = useRef<string>("");
+  const aboutThreeRef = useRef<string>("");
   const lookingRef = useRef<string>("");
   const participantIdRef = useRef<string | null>(null);
+  const shownMatchIdsRef = useRef<string[]>([]);
 
   useEffect(() => {
     setMessages([
@@ -82,7 +88,7 @@ export default function JoinChatbot({ eventId, eventName }: Props) {
     //   );
     // }
     return null;
-  }, [step]);
+  }, []);
 
   const push = (msg: Omit<ChatMessage, "id" | "timestamp">) => {
     setMessages((prev) => [
@@ -99,33 +105,80 @@ export default function JoinChatbot({ eventId, eventName }: Props) {
       if (step === "ask_name") {
         nameRef.current = text.trim();
         setIsTyping(true);
-        setStep("ask_about");
+        setStep("ask_email");
         setTimeout(() => {
           push({
             role: "assistant",
-            content:
-              "Nice to meet you! Tell me a bit about yourself: your interests, field of work, aspiration",
+            content: "Great! What's your email? (required)",
           });
           setIsTyping(false);
         }, 600);
         return;
       }
 
-      // photo step removed
-
-      if (step === "ask_about") {
-        aboutRef.current = text.trim();
+      if (step === "ask_email") {
+        const email = text.trim();
+        const ok = /.+@.+\..+/.test(email);
+        if (!ok) {
+          push({ role: "assistant", content: "Please enter a valid email." });
+          return;
+        }
+        emailRef.current = email;
         setIsTyping(true);
-        setStep("ask_looking");
+        setStep("ask_about");
         setTimeout(() => {
           push({
             role: "assistant",
-            content:
-              "Who would you like to meet? Describe the ideal person (skills, background, goals).",
+            content: "How would you introduce yourself in 1 line?",
           });
           setIsTyping(false);
         }, 500);
         return;
+      }
+
+      // photo step removed
+
+      if (step === "ask_about") {
+        if (!aboutOneRef.current) {
+          aboutOneRef.current = text.trim();
+          setIsTyping(true);
+          setTimeout(() => {
+            push({
+              role: "assistant",
+              content: "Flex time 💪 What's 1–3 things you're proud of?",
+            });
+            setIsTyping(false);
+          }, 450);
+          return;
+        }
+        if (!aboutTwoRef.current) {
+          aboutTwoRef.current = text.trim();
+          setIsTyping(true);
+          setTimeout(() => {
+            push({
+              role: "assistant",
+              content: "What's grabbing your attention these days?",
+            });
+            setIsTyping(false);
+          }, 450);
+          return;
+        }
+        if (!aboutThreeRef.current) {
+          aboutThreeRef.current = text.trim();
+          aboutRef.current =
+            `${aboutOneRef.current} ${aboutTwoRef.current} ${aboutThreeRef.current}`.trim();
+          setIsTyping(true);
+          setStep("ask_looking");
+          setTimeout(() => {
+            push({
+              role: "assistant",
+              content:
+                "Who would you like to meet? Describe the ideal person (skills, background, goals).",
+            });
+            setIsTyping(false);
+          }, 500);
+          return;
+        }
       }
 
       if (step === "ask_looking") {
@@ -162,6 +215,9 @@ export default function JoinChatbot({ eventId, eventName }: Props) {
               linkedinUrl: linkedinUrlRef.current,
               aboutYou: aboutRef.current,
               lookingFor: lookingRef.current,
+              // store email inside answers via backend (no schema change needed)
+              // the API already persists answers; backend will include email in answers if passed
+              email: emailRef.current,
             }),
           });
           const data = await res.json();
@@ -175,11 +231,14 @@ export default function JoinChatbot({ eventId, eventName }: Props) {
           });
 
           // Request matches
-          const m = await fetch(`/api/participants/${data.id}/match`, {
+          const m = await fetch(`/api/participants/${data.id}/match?topK=2`, {
             method: "POST",
           }).then((r) => r.json());
 
           if (m.matches && m.matches.length) {
+            shownMatchIdsRef.current = m.matches.map(
+              (x: { id: string }) => x.id
+            );
             const cards = (
               <div style={{ display: "grid", gap: 14 }}>
                 {m.matches.map(
@@ -257,6 +316,145 @@ export default function JoinChatbot({ eventId, eventName }: Props) {
               role: "assistant",
               content: "Here are your top matches:",
               rich: cards,
+            });
+
+            // offer more
+            push({
+              role: "assistant",
+              content: "Want more matches?",
+              actions: [
+                {
+                  label: "Yes, sure",
+                  value: "more_yes",
+                  action: async () => {
+                    setIsTyping(true);
+                    const exclude = shownMatchIdsRef.current.join(",");
+                    const more = await fetch(
+                      `/api/participants/${
+                        participantIdRef.current
+                      }/match?topK=2&excludeIds=${encodeURIComponent(exclude)}`,
+                      { method: "POST" }
+                    ).then((r) => r.json());
+                    setIsTyping(false);
+                    if (more.matches && more.matches.length) {
+                      shownMatchIdsRef.current = [
+                        ...shownMatchIdsRef.current,
+                        ...more.matches.map((x: { id: string }) => x.id),
+                      ];
+                      const moreCards = (
+                        <div style={{ display: "grid", gap: 14 }}>
+                          {more.matches.map(
+                            (x: {
+                              id: string;
+                              name: string;
+                              linkedinUrl?: string | null;
+                              aiProfile?: string | null;
+                              reason?: string;
+                            }) => (
+                              <MatchCard
+                                key={x.id}
+                                style={{
+                                  background: "#ffffff",
+                                  boxShadow: "0 8px 22px rgba(18,20,12,0.1)",
+                                }}
+                              >
+                                <FlexRow
+                                  style={{
+                                    marginBottom: 8,
+                                    alignItems: "flex-start",
+                                  }}
+                                >
+                                  <InitialCircle
+                                    style={{
+                                      background: `hsl(${
+                                        ((x.name?.charCodeAt(0) || 65) * 33) %
+                                        360
+                                      } 70% 45%)`,
+                                    }}
+                                  >
+                                    {x.name?.slice(0, 1) || "?"}
+                                  </InitialCircle>
+                                  <div
+                                    style={{
+                                      fontWeight: 700,
+                                      color: "#12140C",
+                                    }}
+                                  >
+                                    {x.name}
+                                  </div>
+                                </FlexRow>
+                                {x.aiProfile && (
+                                  <p
+                                    style={{
+                                      margin: 0,
+                                      lineHeight: 1.6,
+                                      color: "#444",
+                                      fontStyle: "italic",
+                                    }}
+                                  >
+                                    {x.aiProfile}
+                                  </p>
+                                )}
+                                {x.reason && (
+                                  <p
+                                    style={{
+                                      marginTop: 8,
+                                      fontStyle: "italic",
+                                      color: "#6b7280",
+                                    }}
+                                  >
+                                    {x.reason}
+                                  </p>
+                                )}
+                                {x.linkedinUrl && (
+                                  <div style={{ marginTop: 10 }}>
+                                    <a
+                                      href={x.linkedinUrl}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      style={{
+                                        color: "#0EA5E9",
+                                        textDecoration: "none",
+                                      }}
+                                    >
+                                      View LinkedIn →
+                                    </a>
+                                  </div>
+                                )}
+                              </MatchCard>
+                            )
+                          )}
+                        </div>
+                      );
+                      push({
+                        role: "assistant",
+                        content: "Here are two more matches:",
+                        rich: moreCards,
+                      });
+                      push({
+                        role: "assistant",
+                        content: "Thanks for using Blombo!",
+                      });
+                    } else {
+                      push({
+                        role: "assistant",
+                        content:
+                          "No more strong matches right now. Check back later!",
+                      });
+                    }
+                  },
+                },
+                {
+                  label: "No, I'm good",
+                  value: "more_no",
+                  action: () => {
+                    push({
+                      role: "assistant",
+                      content: "Thanks for using Blombo!",
+                    });
+                  },
+                },
+              ],
             });
           } else {
             push({

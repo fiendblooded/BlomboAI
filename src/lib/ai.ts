@@ -47,7 +47,7 @@ export async function rankMatchesLLM(args: {
   topK?: number;
 }): Promise<{ id: string; reason: string }[]> {
   const { self, candidates } = args;
-  const topK = 2;
+  const topK = Math.max(1, Math.min(args.topK ?? 2, 10));
 
   const system = `You are an expert networking assistant. Rank candidates by mutual fit (both sides benefit).
 Write a friendly, plain‑English reason for each chosen candidate:

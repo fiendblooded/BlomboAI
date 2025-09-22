@@ -65,6 +65,12 @@ const MessagesContainer = styled.div`
   }
 `;
 
+const MessageRow = styled.div<{ $isUser: boolean }>`
+  display: flex;
+  flex-direction: column;
+  align-items: ${(props) => (props.$isUser ? "flex-end" : "flex-start")};
+`;
+
 const MessageBubble = styled.div<{ $isUser: boolean; $hasRich?: boolean }>`
   max-width: 80%;
   align-self: ${(props) => (props.$isUser ? "flex-end" : "flex-start")};
@@ -308,7 +314,7 @@ export default function Chat({
 
       <MessagesContainer>
         {messages.map((message) => (
-          <div key={message.id}>
+          <MessageRow key={message.id} $isUser={message.role === "user"}>
             <MessageBubble
               $isUser={message.role === "user"}
               $hasRich={Boolean(message.rich)}
@@ -324,7 +330,7 @@ export default function Chat({
                 ))}
               </QuickActionsContainer>
             )}
-          </div>
+          </MessageRow>
         ))}
 
         {isTyping && (

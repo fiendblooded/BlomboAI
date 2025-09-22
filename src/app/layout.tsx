@@ -31,7 +31,6 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <StyledComponentsRegistry>
           <GlobalStyle />
-          <ThemeToggle />
           <AppProviders>{children}</AppProviders>
         </StyledComponentsRegistry>
       </body>

@@ -39,6 +39,7 @@ export interface MatchEntry {
 export interface ParticipantDoc extends mongoose.Document {
   eventId: mongoose.Types.ObjectId;
   name: string;
+  email: string;
   avatarUrl?: string;
   linkedinUrl?: string;
   answers?: Record<string, unknown>;
@@ -62,6 +63,7 @@ const ParticipantSchema = new Schema<ParticipantDoc>(
       index: true,
     },
     name: { type: String, required: true },
+    email: { type: String, required: true, index: true },
     avatarUrl: String,
     linkedinUrl: String,
     answers: Schema.Types.Mixed,

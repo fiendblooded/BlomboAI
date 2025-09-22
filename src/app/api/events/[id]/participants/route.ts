@@ -32,7 +32,8 @@ export async function POST(req: NextRequest, { params }: Params) {
       );
     }
 
-    const { name, avatarUrl, linkedinUrl, aboutYou, lookingFor } = parsed.data;
+    const { name, email, avatarUrl, linkedinUrl, aboutYou, lookingFor } =
+      parsed.data;
 
     const aiProfile = await generateProfileSummary({
       name,
@@ -61,9 +62,10 @@ export async function POST(req: NextRequest, { params }: Params) {
     const participant = await ParticipantModel.create({
       eventId: event._id,
       name,
+      email,
       avatarUrl: finalAvatarUrl,
       linkedinUrl,
-      answers: { aboutYou, lookingFor },
+      answers: { aboutYou, lookingFor, email },
       aiProfile,
       aiProfileEmbedding,
       preferences: lookingFor,

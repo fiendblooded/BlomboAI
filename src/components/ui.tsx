@@ -65,7 +65,7 @@ export const Card = styled.div`
 export const Title = styled.h1`
   font-size: 2rem;
   font-weight: 700;
-  text-align: center;
+  text-align: left;
   margin-bottom: 0.5rem;
   color: var(--text-color);
 `;

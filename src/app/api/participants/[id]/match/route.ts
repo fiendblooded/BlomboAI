@@ -10,17 +10,30 @@ interface Params {
   params: Promise<{ id: string }>;
 }
 
-export async function POST(_req: NextRequest, { params }: Params) {
+export async function POST(req: NextRequest, { params }: Params) {
   try {
     const { id } = await params;
     await connectToDatabase();
     const self = await ParticipantModel.findById(id).exec();
     if (!self)
       return NextResponse.json({ error: "Not found" }, { status: 404 });
-    const others = await ParticipantModel.find({
+    const { searchParams } = new URL(req.url);
+    const excludeIdsRaw = searchParams.get("excludeIds");
+    const topKRaw = searchParams.get("topK");
+    const excludeIds = excludeIdsRaw
+      ? excludeIdsRaw.split(",").filter(Boolean)
+      : [];
+    const topK = Math.max(1, Math.min(Number(topKRaw) || 2, 10));
+
+    const filter: Record<string, unknown> = {
       eventId: self.eventId,
       _id: { $ne: self._id },
-    }).exec();
+    };
+    if (excludeIds.length) {
+      filter._id = { $ne: self._id, $nin: excludeIds } as unknown as never;
+    }
+
+    const others = await ParticipantModel.find(filter).exec();
 
     const llmRanked = await rankMatchesLLM({
       self: {
@@ -35,7 +48,7 @@ export async function POST(_req: NextRequest, { params }: Params) {
         aiProfile: p.aiProfile || "",
         preferences: p.preferences || "",
       })),
-      topK: 2,
+      topK,
     });
 
     const top2 = llmRanked
